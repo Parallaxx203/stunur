@@ -63,6 +63,13 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"Space Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        display: ['Orbitron', 'sans-serif'],
+        body: ['"Exo 2"', 'sans-serif'],
+        pixel: ['"Press Start 2P"', 'cursive'],
+      },
       keyframes: {
         "accordion-down": {
           from: {
