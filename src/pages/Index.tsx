@@ -35,26 +35,23 @@ export default function Index() {
             alt="STONER — Dubai night skyline meme banner"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90" />
-
-          <div className="absolute inset-0 flex items-end justify-center pb-12 md:pb-16 text-center px-4 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="flex flex-col items-center"
-            >
-              <h1 className="text-[6vw] md:text-[5rem] font-pixel mb-0 flex flex-col items-center leading-normal text-white">
-                <span className="drop-shadow-[0_0_80px_rgba(255,255,255,0.4)] mix-blend-difference">
-                  S·T·O·N·E·R
-                </span>
-                <span className="text-[1.2vw] md:text-sm font-bold tracking-[1em] mt-10 uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] text-white/90">
-                  STAY STONED EVERY DAY
-                </span>
-              </h1>
-            </motion.div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
         </div>
+
+        {/* Title BELOW the image so it does not overlap */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="flex flex-col items-center text-center px-4 pt-10 md:pt-14 pb-2"
+        >
+          <h1 className="text-[8vw] md:text-[5rem] font-pixel leading-none text-white drop-shadow-[0_0_40px_rgba(255,255,255,0.25)]">
+            S·T·O·N·E·R
+          </h1>
+          <p className="text-[2.4vw] md:text-sm font-bold tracking-[0.6em] md:tracking-[1em] mt-6 uppercase text-white/70">
+            STAY STONED EVERY DAY
+          </p>
+        </motion.div>
       </div>
 
       {/* CA Bar + Buttons */}
