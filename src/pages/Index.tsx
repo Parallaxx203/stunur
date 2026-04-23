@@ -14,24 +14,12 @@ import { StonerChronicles } from '@/components/StonerChronicles';
 import { StonerScanner } from '@/components/StonerScanner';
 import { StonerGenerator } from '@/components/StonerGenerator';
 import { cn } from '@/lib/utils';
+import bannerImg from '@/assets/stoner-banner.jpg';
+import footerImg from '@/assets/stoner-footer.jpg';
 
 export default function Index() {
   const [isMuted, setIsMuted] = React.useState(true);
   const [currentView, setCurrentView] = React.useState<'home' | 'generator'>('home');
-  const [bannerUrl, setBannerUrl] = React.useState<string | null>(null);
-  const [footerUrl, setFooterUrl] = React.useState<string | null>(null);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const footerInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setBannerUrl(URL.createObjectURL(file));
-  };
-
-  const handleFooterUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setFooterUrl(URL.createObjectURL(file));
-  };
 
   if (currentView === 'generator') {
     return <StonerGenerator onBack={() => setCurrentView('home')} />;
@@ -40,43 +28,14 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-black text-white font-body pb-12">
       {/* Hero */}
-      <div className="relative w-full overflow-hidden bg-black group">
-        <input type="file" ref={fileInputRef} onChange={handleBannerUpload} className="hidden" accept="image/*" />
-
-        <div className="relative w-full max-w-7xl mx-auto h-[45vh] md:h-[55vh] bg-zinc-950 overflow-hidden border-b border-white/10 group/banner transition-colors hover:bg-zinc-900">
-          {bannerUrl ? (
-            <img
-              src={bannerUrl}
-              alt="Custom Banner"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover/banner:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-[#0a0a0a] relative">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,0,0,0.05)_0%,_transparent_70%)]" />
-              <div className="flex flex-col items-center gap-4 z-10">
-                <div className="w-20 h-20 rounded-full border-2 border-dashed border-red-600/30 flex items-center justify-center group-hover/banner:border-red-600/60 transition-all">
-                  <Plus className="w-8 h-8 text-red-600/40 group-hover/banner:text-red-600 transition-all" />
-                </div>
-                <span className="text-red-900/60 font-display font-black italic text-xl uppercase tracking-[0.3em] group-hover/banner:text-red-600 transition-all">
-                  PLACE BANNER HERE
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-
-          <div className="absolute top-4 right-4 z-50">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                fileInputRef.current?.click();
-              }}
-              className="bg-black/80 hover:bg-red-600 text-[10px] font-black px-6 py-2.5 border border-white/20 rounded-sm opacity-0 group-hover:opacity-100 transition-all uppercase tracking-[0.2em] text-white"
-            >
-              Update Image
-            </button>
-          </div>
+      <div className="relative w-full overflow-hidden bg-black">
+        <div className="relative w-full max-w-7xl mx-auto h-[45vh] md:h-[55vh] bg-zinc-950 overflow-hidden border-b border-white/10">
+          <img
+            src={bannerImg}
+            alt="STONER — Dubai night skyline meme banner"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-90" />
 
           <div className="absolute inset-0 flex items-end justify-center pb-12 md:pb-16 text-center px-4 pointer-events-none">
             <motion.div
@@ -86,7 +45,9 @@ export default function Index() {
               className="flex flex-col items-center"
             >
               <h1 className="text-[6vw] md:text-[5rem] font-pixel mb-0 flex flex-col items-center leading-normal text-white">
-                <span className="drop-shadow-[0_0_80px_rgba(255,255,255,0.4)] mix-blend-difference">S·T·O·N·E·R</span>
+                <span className="drop-shadow-[0_0_80px_rgba(255,255,255,0.4)] mix-blend-difference">
+                  S·T·O·N·E·R
+                </span>
                 <span className="text-[1.2vw] md:text-sm font-bold tracking-[1em] mt-10 uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] text-white/90">
                   STAY STONED EVERY DAY
                 </span>
@@ -150,39 +111,14 @@ export default function Index() {
       <StonerScanner />
 
       {/* Footer */}
-      <footer className="mt-20 relative bg-black border-t border-white/10 group/footer">
-        <input type="file" ref={footerInputRef} onChange={handleFooterUpload} className="hidden" accept="image/*" />
-
+      <footer className="mt-20 relative bg-black border-t border-white/10">
         <div className="relative w-full h-[300px] md:h-[400px] bg-zinc-950 overflow-hidden border-b border-white/10">
-          {footerUrl ? (
-            <div className="relative w-full h-full">
-              <img
-                src={footerUrl}
-                alt="Footer Banner"
-                className="w-full h-full object-cover opacity-60 transition-all duration-700 group-hover/footer:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-            </div>
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-[#050505] transition-colors hover:bg-zinc-900/40">
-              <div className="flex flex-col items-center gap-2 opacity-20 group-hover/footer:opacity-50 transition-opacity">
-                <Plus className="w-6 h-6 text-white" />
-                <span className="text-[10px] font-pixel uppercase tracking-widest text-white px-4 text-center">
-                  Add Footer Banner
-                </span>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              footerInputRef.current?.click();
-            }}
-            className="absolute bottom-4 right-4 bg-black/60 hover:bg-white hover:text-black text-[8px] font-pixel px-4 py-2 border border-white/20 rounded-sm opacity-0 group-hover/footer:opacity-100 transition-all uppercase z-30 shadow-lg pointer-events-auto text-white"
-          >
-            Update Footer Image
-          </button>
+          <img
+            src={footerImg}
+            alt="STONER crew alley scene"
+            className="w-full h-full object-cover opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
         </div>
 
         <div className="bg-black pt-12 pb-20 px-4">
@@ -273,7 +209,7 @@ function NavButtonSmall({
         <div
           className={cn(
             'absolute -top-1 right-2 z-10 px-1.5 py-0.5 rounded-[1px] text-[7px] md:text-[8px] font-black italic tracking-wider text-white uppercase shadow-sm',
-            badgeColor || 'bg-red-600'
+            badgeColor || 'bg-red-600',
           )}
         >
           {badge}
@@ -283,7 +219,7 @@ function NavButtonSmall({
         onClick={handleClick}
         className={cn(
           'w-full flex items-center justify-center gap-2 py-3.5 px-2 rounded-sm border transition-all group relative overflow-hidden text-white',
-          className
+          className,
         )}
       >
         <span className="shrink-0 transition-transform group-hover:scale-110">{icon}</span>
