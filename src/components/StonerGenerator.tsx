@@ -11,70 +11,58 @@ import {
   X,
   Sparkles,
 } from 'lucide-react';
-
-// LLMAPI configuration (per integration guide)
-const LLMAPI_KEY = "llmapi_013bbfb73557cd2a1441a5599b047128fbfc35045fa5c2e8a8f24ab1749c790b";
-const API_BASE = "https://api.llmapi.ai/v1";
-const IMAGE_MODEL = "google-ai-studio/gemini-2.5-flash-image";
-const TIMEOUT_MS = 30000;
-
-const STYLE_KEYWORDS = "vibrant, slightly gritty, meme-ready, artistic, cinematic";
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export function StonerGenerator({ onBack }: { onBack: () => void }) {
   const [prompt, setPrompt] = React.useState('');
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isPosting, setIsPosting] = React.useState(false);
   const [result, setResult] = React.useState<string | null>(null);
+  const [resultPersisted, setResultPersisted] = React.useState(false);
   const [referenceImages, setReferenceImages] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleGenerate = async () => {
-    if (!prompt.trim() && referenceImages.length === 0) return;
+  const callGenerate = async (postToFeed: boolean) => {
+    const { data, error: fnError } = await supabase.functions.invoke('generate-meme', {
+      body: { prompt: prompt.trim(), postToFeed },
+    });
+    if (fnError) throw new Error(fnError.message || 'Generation failed');
+    if (data?.error) throw new Error(data.error);
+    if (!data?.imageUrl) throw new Error('No image returned');
+    return data as { imageUrl: string; persisted: boolean };
+  };
 
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
     setIsGenerating(true);
     setError(null);
-
-    const fullPrompt = `Generate a high-quality stoner-themed meme image. Concept: ${
-      prompt || 'A classic stoner character in a cool scene'
-    }. Style: ${STYLE_KEYWORDS}. Ensure the character has red, bloodshot eyes and a chill expression.`;
-
+    setResult(null);
+    setResultPersisted(false);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-      const response = await fetch(`${API_BASE}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${LLMAPI_KEY}`,
-        },
-        body: JSON.stringify({
-          model: IMAGE_MODEL,
-          messages: [{ role: "user", content: fullPrompt }],
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-      if (!imageUrl) throw new Error("No image in response");
-      setResult(imageUrl);
+      const data = await callGenerate(false);
+      setResult(data.imageUrl);
     } catch (err: any) {
-      console.error("Generation failed:", err);
-      let errorMsg = "Failed to bake the meme. Try again.";
-      if (err?.name === "AbortError") errorMsg = "Request timeout (30s+). Try a simpler prompt.";
-      else if (String(err?.message).includes("401")) errorMsg = "Invalid API Key.";
-      else if (String(err?.message).includes("429")) errorMsg = "Rate limited. Wait and try again.";
-      setError(errorMsg);
+      console.error('Generation failed:', err);
+      setError(err?.message || 'Failed to bake the meme. Try again.');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handlePostToFeed = async () => {
+    if (!prompt.trim() || isPosting) return;
+    setIsPosting(true);
+    try {
+      const data = await callGenerate(true);
+      setResult(data.imageUrl);
+      setResultPersisted(true);
+      toast.success('Posted to community feed!');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to post to feed');
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -135,10 +123,10 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
                     key="error"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex flex-col items-center gap-4 text-red-500 max-w-xs text-center"
+                    className="flex flex-col items-center gap-4 text-red-500 max-w-xs text-center px-4"
                   >
                     <X className="w-8 h-8" />
-                    <span className="font-pixel text-[10px] tracking-tight">{error}</span>
+                    <span className="font-pixel text-[10px] tracking-tight leading-relaxed">{error}</span>
                     <button
                       onClick={handleGenerate}
                       className="text-[8px] font-pixel text-white/40 hover:text-white underline mt-2"
@@ -160,12 +148,17 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
                           <a
                             href={result}
                             download="stoner-meme.png"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="p-4 bg-white text-black rounded-full hover:scale-110 transition-transform flex items-center justify-center shadow-xl cursor-pointer"
                           >
                             <Download className="w-6 h-6" />
                           </a>
                           <button
-                            onClick={() => alert("Meme shared to X bro!")}
+                            onClick={() => {
+                              navigator.clipboard.writeText(result);
+                              toast.success('Image URL copied!');
+                            }}
                             className="p-4 bg-[#1DA1F2] text-white rounded-full hover:scale-110 transition-transform flex items-center justify-center shadow-xl"
                           >
                             <Share2 className="w-6 h-6" />
@@ -173,10 +166,11 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
                         </div>
 
                         <button
-                          onClick={() => alert("Meme uploaded to community feed!")}
-                          className="px-6 py-2 bg-red-600 text-white font-pixel text-[10px] rounded-sm hover:bg-red-500 transition-colors shadow-lg active:scale-95"
+                          onClick={handlePostToFeed}
+                          disabled={isPosting || resultPersisted}
+                          className="px-6 py-2 bg-red-600 text-white font-pixel text-[10px] rounded-sm hover:bg-red-500 transition-colors shadow-lg active:scale-95 disabled:bg-white/10 disabled:text-white/40"
                         >
-                          POST TO FEED
+                          {resultPersisted ? 'POSTED ✓' : isPosting ? 'POSTING...' : 'POST TO FEED'}
                         </button>
                       </div>
                     </div>
@@ -251,7 +245,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
 
               <div className="mt-6 pt-6 border-t border-white/5">
                 <p className="text-[8px] font-pixel text-white/20 leading-relaxed uppercase">
-                  UPLOAD YOUR STONER CHARACTER OR ENVIRONMENT VIBES AS REFERENCE
+                  REFERENCES ARE A VIBE BOARD — INSPIRE YOUR PROMPT, BRO
                 </p>
               </div>
             </div>
@@ -271,7 +265,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
           <div className="absolute right-4 bottom-4 flex items-center gap-4">
             <button
               onClick={handleGenerate}
-              disabled={isGenerating || (!prompt.trim() && referenceImages.length === 0)}
+              disabled={isGenerating || !prompt.trim()}
               className="bg-red-600 hover:bg-red-500 disabled:bg-white/5 disabled:text-white/20 p-4 rounded-sm transition-all shadow-[0_0_20px_rgba(255,0,0,0.2)] active:scale-95 group/btn text-white"
             >
               {isGenerating ? (
