@@ -135,7 +135,7 @@ export default function Index() {
             <div className="mb-12">
               <button
                 onClick={() => setCurrentView('generator')}
-                className="px-12 py-5 border border-red-600 text-white font-pixel transition-all rounded-sm hover:bg-red-600 hover:text-white uppercase text-[12px] md:text-[14px] bg-black/5 shadow-[0_0_50px_rgba(255,0,0,0.2)] active:scale-95"
+                className="px-12 py-5 border border-red-500/40 text-white font-pixel transition-all rounded-full hover:bg-red-600/20 hover:border-red-500 hover:scale-105 uppercase text-[12px] md:text-[14px] bg-white/5 backdrop-blur-xl shadow-[0_0_50px_rgba(255,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.15)] active:scale-95"
               >
                 GENERATE NEW STONER
               </button>
@@ -149,12 +149,12 @@ export default function Index() {
         </div>
       </footer>
 
-      {/* Floating audio toggle */}
+      {/* Floating audio toggle - glassy round */}
       <button
         onClick={() => setIsMuted(!isMuted)}
-        className="fixed bottom-8 right-8 w-14 h-14 md:w-16 md:h-16 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,0,0,0.5)] hover:scale-110 active:scale-95 transition-all z-[9999]"
+        className="fixed bottom-8 right-8 w-14 h-14 md:w-16 md:h-16 bg-red-600/80 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(255,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:bg-red-500 active:scale-95 transition-all z-[9999]"
       >
-        {isMuted ? <VolumeX className="w-8 h-8 text-white" /> : <Volume2 className="w-8 h-8 text-white" />}
+        {isMuted ? <VolumeX className="w-7 h-7 text-white" /> : <Volume2 className="w-7 h-7 text-white" />}
       </button>
     </div>
   );
@@ -172,7 +172,7 @@ function NavButtonFooter({
   return (
     <button
       onClick={onClick || (() => alert('Coming soon bro!'))}
-      className="flex items-center gap-3 px-6 py-3 border border-white/10 bg-black/40 backdrop-blur-md rounded-sm transition-all hover:bg-white hover:text-black group active:scale-95"
+      className="flex items-center gap-3 px-6 py-3 border border-white/15 bg-white/5 backdrop-blur-xl rounded-full transition-all hover:bg-white hover:text-black hover:scale-105 group active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
     >
       <span className="shrink-0 group-hover:scale-110 transition-transform">{icon}</span>
       <span className="font-pixel text-[8px] tracking-tight uppercase">{label}</span>
@@ -180,17 +180,24 @@ function NavButtonFooter({
   );
 }
 
+const ACCENT_STYLES: Record<string, string> = {
+  white: 'border-white/20 bg-white/5 hover:bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]',
+  blue: 'border-[#0088cc]/40 bg-[#0088cc]/10 hover:bg-[#0088cc]/20 shadow-[0_0_20px_rgba(0,136,204,0.15),inset_0_1px_0_rgba(255,255,255,0.08)]',
+  purple: 'border-purple-500/50 bg-purple-600/10 hover:bg-purple-600/20 shadow-[0_0_20px_rgba(147,51,234,0.2),inset_0_1px_0_rgba(255,255,255,0.08)]',
+  emerald: 'border-emerald-500/50 bg-emerald-600/10 hover:bg-emerald-600/20 shadow-[0_0_20px_rgba(5,150,105,0.2),inset_0_1px_0_rgba(255,255,255,0.08)]',
+};
+
 function NavButtonSmall({
   icon,
   label,
-  className,
+  accent = 'white',
   badge,
   badgeColor,
   onClick,
 }: {
   icon: React.ReactNode;
   label: string;
-  className?: string;
+  accent?: 'white' | 'blue' | 'purple' | 'emerald';
   badge?: string;
   badgeColor?: string;
   onClick?: () => void;
@@ -205,7 +212,7 @@ function NavButtonSmall({
       {badge && (
         <div
           className={cn(
-            'absolute -top-1 right-2 z-10 px-1.5 py-0.5 rounded-[1px] text-[7px] md:text-[8px] font-black italic tracking-wider text-white uppercase shadow-sm',
+            'absolute -top-1 right-3 z-10 px-2 py-0.5 rounded-full text-[7px] md:text-[8px] font-black italic tracking-wider text-white uppercase shadow-md backdrop-blur-md border border-white/20',
             badgeColor || 'bg-red-600',
           )}
         >
@@ -215,13 +222,13 @@ function NavButtonSmall({
       <button
         onClick={handleClick}
         className={cn(
-          'w-full flex items-center justify-center gap-2 py-3.5 px-2 rounded-sm border transition-all group relative overflow-hidden text-white',
-          className,
+          'w-full flex items-center justify-center gap-2 py-4 px-3 rounded-full border backdrop-blur-xl transition-all group relative overflow-hidden text-white hover:scale-[1.03] active:scale-95',
+          ACCENT_STYLES[accent],
         )}
       >
         <span className="shrink-0 transition-transform group-hover:scale-110">{icon}</span>
         <span className="font-pixel text-[7px] md:text-[9px] tracking-widest uppercase whitespace-nowrap">{label}</span>
-        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-full" />
       </button>
     </div>
   );
