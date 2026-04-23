@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      meme_likes: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          meme_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          meme_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          meme_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meme_likes_meme_id_fkey"
+            columns: ["meme_id"]
+            isOneToOne: false
+            referencedRelation: "memes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memes: {
         Row: {
           author: string
@@ -21,6 +50,7 @@ export type Database = {
           id: string
           image_url: string
           prompt: string | null
+          view_count: number
         }
         Insert: {
           author?: string
@@ -28,6 +58,7 @@ export type Database = {
           id?: string
           image_url: string
           prompt?: string | null
+          view_count?: number
         }
         Update: {
           author?: string
@@ -35,6 +66,7 @@ export type Database = {
           id?: string
           image_url?: string
           prompt?: string | null
+          view_count?: number
         }
         Relationships: []
       }
@@ -43,7 +75,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_meme_stats: { Args: { _meme_id: string }; Returns: Json }
+      get_total_memes_count: { Args: never; Returns: number }
+      increment_meme_view: { Args: { _meme_id: string }; Returns: number }
+      toggle_meme_like: {
+        Args: { _device_id: string; _meme_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
