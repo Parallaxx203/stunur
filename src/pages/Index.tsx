@@ -69,21 +69,21 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="w-full max-w-2xl flex flex-col gap-2">
-            <div className="grid grid-cols-2 gap-2">
-              <NavButtonSmall icon={<X className="w-4 h-4" />} label="X" className="border-white/20 bg-black" />
+          <div className="w-full max-w-2xl flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <NavButtonSmall icon={<X className="w-4 h-4" />} label="X" accent="white" />
               <NavButtonSmall
                 icon={<Send className="w-4 h-4 text-[#0088cc]" />}
                 label="TG"
-                className="border-[#0088cc]/30 bg-black"
+                accent="blue"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <NavButtonSmall
                 icon={<Radar className="w-4 h-4" />}
                 label="SCANNER"
-                className="border-purple-600/40 bg-black shadow-[0_0_15px_rgba(147,51,234,0.1)]"
+                accent="purple"
                 badge="LIVE"
                 badgeColor="bg-purple-600"
                 onClick={() => {
@@ -92,9 +92,9 @@ export default function Index() {
                 }}
               />
               <NavButtonSmall
-                icon={<Plus className="w-4 h-4 text-emerald-500" />}
+                icon={<Plus className="w-4 h-4 text-emerald-400" />}
                 label="GENERATE"
-                className="border-emerald-600/40 bg-black shadow-[0_0_15px_rgba(5,150,105,0.1)]"
+                accent="emerald"
                 badge="HOT"
                 badgeColor="bg-emerald-600"
                 onClick={() => setCurrentView('generator')}
