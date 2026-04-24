@@ -5,20 +5,19 @@ import {
   Send,
   BarChart3,
   Copy,
-  Volume2,
-  VolumeX,
   Radar,
   Plus,
 } from 'lucide-react';
 import { StonerChronicles } from '@/components/StonerChronicles';
 import { StonerScanner } from '@/components/StonerScanner';
 import { StonerGenerator } from '@/components/StonerGenerator';
+import { StunurFilm } from '@/components/StunurFilm';
+import { AudioPlayer } from '@/components/AudioPlayer';
 import { cn } from '@/lib/utils';
 import bannerImg from '@/assets/stoner-banner.jpg';
 import footerImg from '@/assets/stoner-footer.jpg';
 
 export default function Index() {
-  const [isMuted, setIsMuted] = React.useState(true);
   const [currentView, setCurrentView] = React.useState<'home' | 'generator'>('home');
 
   if (currentView === 'generator') {
@@ -106,6 +105,7 @@ export default function Index() {
 
       <StonerChronicles onGenerate={() => setCurrentView('generator')} />
       <StonerScanner />
+      <StunurFilm />
 
       {/* Footer */}
       <footer className="mt-20 relative bg-black border-t border-white/10">
@@ -149,13 +149,7 @@ export default function Index() {
         </div>
       </footer>
 
-      {/* Floating audio toggle - glassy round */}
-      <button
-        onClick={() => setIsMuted(!isMuted)}
-        className="fixed bottom-8 right-8 w-14 h-14 md:w-16 md:h-16 bg-red-600/80 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(255,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:bg-red-500 active:scale-95 transition-all z-[9999]"
-      >
-        {isMuted ? <VolumeX className="w-7 h-7 text-white" /> : <Volume2 className="w-7 h-7 text-white" />}
-      </button>
+      <AudioPlayer />
     </div>
   );
 }
