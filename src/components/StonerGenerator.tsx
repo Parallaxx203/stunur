@@ -33,8 +33,12 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
     const refResp = await fetch(REFERENCE_URL);
     if (!refResp.ok) throw new Error("Failed to load reference image");
     const refBuf = await refResp.arrayBuffer();
-    const refBase64 = btoa(String.fromCharCode(...new Uint8Array(refBuf)));
-    const refDataUrl = `data:image/jpeg;base64,${refBase64}`;
+    const refUint8 = new Uint8Array(refBuf);
+    let refBase64 = '';
+    for (let i = 0; i < refUint8.length; i++) {
+      refBase64 += String.fromCharCode(refUint8[i]);
+    }
+    const refDataUrl = `data:image/jpeg;base64,${btoa(refBase64)}`;
 
     const STYLE_LOCK = `You are EDITING the attached reference image. Keep the EXACT SAME CHARACTER (same face, identity, art style) and re-render in a new scene/pose/outfit.
 
