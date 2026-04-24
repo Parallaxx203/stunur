@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { StonerChronicles } from '@/components/StonerChronicles';
-import { StonerScanner } from '@/components/StonerScanner';
+const StonerScanner = lazy(() => import('@/components/StonerScanner').then(m => ({ default: m.StonerScanner })));
 import { StonerGenerator } from '@/components/StonerGenerator';
 import { StunurFilm } from '@/components/StunurFilm';
 import { AudioPlayer } from '@/components/AudioPlayer';
@@ -158,7 +158,7 @@ export default function Index() {
       </div>
 
       {/* ── SCANNER ── */}
-      <StonerScanner />
+      <Suspense fallback={<div style={{padding:"48px 16px",textAlign:"center",fontFamily:"monospace",color:"rgba(0,255,80,0.4)",fontSize:11,letterSpacing:"0.2em"}}>◈ LOADING STUNUR CITY...</div>}><StonerScanner /></Suspense>
 
       {/* ── TOKENOMICS ── */}
       <section id="tokenomics" style={{ padding: '48px 16px', maxWidth: 860, margin: '0 auto' }}>
