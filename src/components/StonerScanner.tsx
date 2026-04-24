@@ -1,369 +1,466 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Radio, TrendingUp, Filter, ZoomIn, ZoomOut } from 'lucide-react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 
-interface StunurSighting {
+interface Sighting {
   id: string;
-  location: string;
+  city: string;
   country: string;
-  type: 'circle' | 'triangle' | 'disk' | 'orb' | 'cloud';
+  lat: number;
+  lng: number;
   intensity: number;
   count: number;
-  timestamp: string;
-  latitude: number;
-  longitude: number;
+  type: string;
   color: string;
+  ago: string;
 }
 
-const mockSightings: StunurSighting[] = [
-  { id: '1', location: 'Amsterdam', country: 'Netherlands', type: 'circle', intensity: 95, count: 847, timestamp: '2m', latitude: 52.37, longitude: 4.89, color: '#00ff41' },
-  { id: '2', location: 'Los Angeles', country: 'USA', type: 'triangle', intensity: 88, count: 623, timestamp: '3m', latitude: 34.05, longitude: -118.24, color: '#ffb700' },
-  { id: '3', location: 'Barcelona', country: 'Spain', type: 'orb', intensity: 82, count: 512, timestamp: '1m', latitude: 41.39, longitude: 2.17, color: '#ff006e' },
-  { id: '4', location: 'Toronto', country: 'Canada', type: 'disk', intensity: 76, count: 421, timestamp: '4m', latitude: 43.65, longitude: -79.38, color: '#00d9ff' },
-  { id: '5', location: 'Berlin', country: 'Germany', type: 'cloud', intensity: 71, count: 356, timestamp: '2m', latitude: 52.52, longitude: 13.40, color: '#a100f2' },
-  { id: '6', location: 'Denver', country: 'USA', type: 'circle', intensity: 84, count: 589, timestamp: '1m', latitude: 39.74, longitude: -104.99, color: '#ff006e' },
-  { id: '7', location: 'Vancouver', country: 'Canada', type: 'triangle', intensity: 79, count: 445, timestamp: '3m', latitude: 49.28, longitude: -123.12, color: '#00ff41' },
-  { id: '8', location: 'Tel Aviv', country: 'Israel', type: 'orb', intensity: 90, count: 734, timestamp: '2m', latitude: 32.09, longitude: 34.78, color: '#ffb700' },
-  { id: '9', location: 'Bangkok', country: 'Thailand', type: 'disk', intensity: 65, count: 267, timestamp: '5m', latitude: 13.73, longitude: 100.54, color: '#00d9ff' },
-  { id: '10', location: 'Oakland', country: 'USA', type: 'cloud', intensity: 87, count: 598, timestamp: '1m', latitude: 37.80, longitude: -122.27, color: '#a100f2' },
-  { id: '11', location: 'Melbourne', country: 'Australia', type: 'circle', intensity: 74, count: 389, timestamp: '2m', latitude: -37.81, longitude: 144.96, color: '#ff006e' },
-  { id: '12', location: 'Paris', country: 'France', type: 'triangle', intensity: 81, count: 504, timestamp: '4m', latitude: 48.86, longitude: 2.35, color: '#00ff41' },
-  { id: '13', location: 'Berlin', country: 'Germany', type: 'orb', intensity: 83, count: 567, timestamp: '2m', latitude: 52.52, longitude: 13.40, color: '#ffb700' },
-  { id: '14', location: 'Portland', country: 'USA', type: 'disk', intensity: 81, count: 504, timestamp: '4m', latitude: 45.51, longitude: -122.68, color: '#00d9ff' },
-  { id: '15', location: 'Dublin', country: 'Ireland', type: 'cloud', intensity: 78, count: 423, timestamp: '1m', latitude: 53.35, longitude: -6.26, color: '#a100f2' },
-  { id: '16', location: 'Seattle', country: 'USA', type: 'circle', intensity: 86, count: 612, timestamp: '2m', latitude: 47.61, longitude: -122.33, color: '#ff006e' },
+const SIGHTINGS: Sighting[] = [
+  { id:'1',  city:'Amsterdam',   country:'NL',  lat:52.37,  lng:4.89,    intensity:95, count:847, type:'CIRCLE',   color:'#00ff88', ago:'2m' },
+  { id:'2',  city:'Los Angeles', country:'USA', lat:34.05,  lng:-118.24, intensity:88, count:623, type:'TRIANGLE', color:'#ffb700', ago:'3m' },
+  { id:'3',  city:'Barcelona',   country:'ESP', lat:41.39,  lng:2.17,    intensity:82, count:512, type:'ORB',      color:'#ff4466', ago:'1m' },
+  { id:'4',  city:'Toronto',     country:'CA',  lat:43.65,  lng:-79.38,  intensity:76, count:421, type:'DISK',     color:'#00d9ff', ago:'4m' },
+  { id:'5',  city:'Berlin',      country:'DE',  lat:52.52,  lng:13.40,   intensity:71, count:356, type:'CLOUD',    color:'#cc44ff', ago:'2m' },
+  { id:'6',  city:'Denver',      country:'USA', lat:39.74,  lng:-104.99, intensity:84, count:589, type:'CIRCLE',   color:'#ff4466', ago:'1m' },
+  { id:'7',  city:'Vancouver',   country:'CA',  lat:49.28,  lng:-123.12, intensity:79, count:445, type:'TRIANGLE', color:'#00ff88', ago:'3m' },
+  { id:'8',  city:'Tel Aviv',    country:'IL',  lat:32.09,  lng:34.78,   intensity:90, count:734, type:'ORB',      color:'#ffb700', ago:'2m' },
+  { id:'9',  city:'Bangkok',     country:'TH',  lat:13.73,  lng:100.54,  intensity:65, count:267, type:'DISK',     color:'#00d9ff', ago:'5m' },
+  { id:'10', city:'Oakland',     country:'USA', lat:37.80,  lng:-122.27, intensity:87, count:598, type:'CLOUD',    color:'#cc44ff', ago:'1m' },
+  { id:'11', city:'Melbourne',   country:'AU',  lat:-37.81, lng:144.96,  intensity:74, count:389, type:'CIRCLE',   color:'#ff4466', ago:'2m' },
+  { id:'12', city:'Paris',       country:'FR',  lat:48.86,  lng:2.35,    intensity:81, count:504, type:'TRIANGLE', color:'#00ff88', ago:'4m' },
+  { id:'13', city:'Dubai',       country:'UAE', lat:25.20,  lng:55.27,   intensity:83, count:567, type:'ORB',      color:'#ffb700', ago:'2m' },
+  { id:'14', city:'Portland',    country:'USA', lat:45.51,  lng:-122.68, intensity:81, count:504, type:'DISK',     color:'#00d9ff', ago:'4m' },
+  { id:'15', city:'Dublin',      country:'IE',  lat:53.35,  lng:-6.26,   intensity:78, count:423, type:'CLOUD',    color:'#cc44ff', ago:'1m' },
+  { id:'16', city:'Seattle',     country:'USA', lat:47.61,  lng:-122.33, intensity:86, count:612, type:'CIRCLE',   color:'#ff4466', ago:'2m' },
+  { id:'17', city:'Tokyo',       country:'JP',  lat:35.68,  lng:139.69,  intensity:92, count:780, type:'ORB',      color:'#00ff88', ago:'1m' },
+  { id:'18', city:'São Paulo',   country:'BR',  lat:-23.55, lng:-46.63,  intensity:69, count:310, type:'TRIANGLE', color:'#ffb700', ago:'6m' },
+  { id:'19', city:'Lagos',       country:'NG',  lat:6.52,   lng:3.38,    intensity:73, count:398, type:'CIRCLE',   color:'#ff4466', ago:'3m' },
+  { id:'20', city:'London',      country:'UK',  lat:51.51,  lng:-0.13,   intensity:88, count:643, type:'DISK',     color:'#00d9ff', ago:'2m' },
 ];
 
-const typeEmojis = {
-  circle: '⭕',
-  triangle: '🔺',
-  disk: '💿',
-  orb: '🔮',
-  cloud: '☁️',
-};
+// Mercator projection
+function project(lat: number, lng: number, w: number, h: number) {
+  const x = (lng + 180) / 360 * w;
+  const latRad = lat * Math.PI / 180;
+  const mercN = Math.log(Math.tan(Math.PI / 4 + latRad / 2));
+  const y = h / 2 - (mercN * h) / (2 * Math.PI);
+  return { x, y };
+}
 
 export function StonerScanner() {
-  const [activeTab, setActiveTab] = React.useState<'feed' | 'map' | 'stats'>('map');
-  const [selectedType, setSelectedType] = React.useState<string | null>(null);
-  const [activeSighting, setActiveSighting] = React.useState<StunurSighting>(mockSightings[0]);
-  const [zoom, setZoom] = React.useState(100);
-  const [stats, setStats] = React.useState({ today: 0, countries: 0, highAlerts: 0, total: 0 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<Sighting>(SIGHTINGS[0]);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
+  const [tick, setTick] = useState(0);
+  const [pulseMap, setPulseMap] = useState<Record<string, number>>({});
 
-  React.useEffect(() => {
-    const filtered = selectedType ? mockSightings.filter(s => s.type === selectedType) : mockSightings;
-    setStats({
-      today: Math.floor(Math.random() * 30) + 15,
-      countries: filtered.length > 0 ? [...new Set(filtered.map(s => s.country))].length : 0,
-      highAlerts: filtered.filter(s => s.intensity > 80).length,
-      total: filtered.reduce((sum, s) => sum + s.count, 0),
+  // Pulse animation ticker
+  useEffect(() => {
+    const iv = setInterval(() => setTick(t => t + 1), 60);
+    return () => clearInterval(iv);
+  }, []);
+
+  // Auto cycle selected
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const idx = Math.floor(Math.random() * SIGHTINGS.length);
+      setSelected(SIGHTINGS[idx]);
+      setPulseMap(p => ({ ...p, [SIGHTINGS[idx].id]: Date.now() }));
+    }, 4000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const drawMap = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const W = canvas.width;
+    const H = canvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // ── BACKGROUND ──
+    const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/1.5);
+    bg.addColorStop(0, '#0d1f0d');
+    bg.addColorStop(0.5, '#080f08');
+    bg.addColorStop(1, '#030803');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // ── GRID ──
+    ctx.save();
+    ctx.translate(offset.x, offset.y);
+    ctx.scale(zoom, zoom);
+
+    const gridSize = 40;
+    ctx.strokeStyle = 'rgba(0,255,80,0.06)';
+    ctx.lineWidth = 0.5;
+    for (let x = -gridSize; x < W / zoom + gridSize; x += gridSize) {
+      ctx.beginPath(); ctx.moveTo(x, -gridSize); ctx.lineTo(x, H / zoom + gridSize); ctx.stroke();
+    }
+    for (let y = -gridSize; y < H / zoom + gridSize; y += gridSize) {
+      ctx.beginPath(); ctx.moveTo(-gridSize, y); ctx.lineTo(W / zoom + gridSize, y); ctx.stroke();
+    }
+
+    // ── CONTINENTS (simplified polygons) ──
+    const continents = [
+      // North America
+      [[0.04,0.12],[0.18,0.08],[0.26,0.12],[0.30,0.22],[0.28,0.38],[0.22,0.48],[0.18,0.52],[0.14,0.50],[0.10,0.42],[0.06,0.35],[0.04,0.25]],
+      // South America
+      [[0.20,0.52],[0.28,0.50],[0.32,0.58],[0.30,0.72],[0.24,0.82],[0.18,0.80],[0.16,0.68],[0.18,0.58]],
+      // Europe
+      [[0.44,0.12],[0.54,0.10],[0.58,0.16],[0.56,0.26],[0.50,0.30],[0.44,0.28],[0.42,0.20]],
+      // Africa
+      [[0.46,0.30],[0.56,0.28],[0.60,0.36],[0.58,0.54],[0.52,0.66],[0.46,0.64],[0.42,0.54],[0.42,0.38]],
+      // Asia
+      [[0.56,0.10],[0.80,0.06],[0.88,0.14],[0.90,0.28],[0.82,0.40],[0.72,0.44],[0.62,0.40],[0.56,0.30],[0.54,0.20]],
+      // Australia
+      [[0.78,0.60],[0.88,0.58],[0.92,0.66],[0.88,0.74],[0.78,0.74],[0.74,0.66]],
+    ];
+
+    continents.forEach(poly => {
+      ctx.beginPath();
+      ctx.moveTo(poly[0][0] * W / zoom, poly[0][1] * H / zoom);
+      poly.slice(1).forEach(([px, py]) => ctx.lineTo(px * W / zoom, py * H / zoom));
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(0,80,30,0.35)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,200,70,0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
     });
-  }, [selectedType]);
 
-  const filteredSightings = selectedType ? mockSightings.filter(s => s.type === selectedType) : mockSightings;
+    // ── LATITUDE/LONGITUDE LINES ──
+    ctx.strokeStyle = 'rgba(0,255,80,0.08)';
+    ctx.lineWidth = 0.5;
+    // Equator
+    ctx.strokeStyle = 'rgba(0,255,80,0.18)';
+    ctx.lineWidth = 1;
+    const eq = project(0, -180, W/zoom, H/zoom);
+    ctx.beginPath(); ctx.moveTo(0, eq.y); ctx.lineTo(W/zoom, eq.y); ctx.stroke();
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      if (filteredSightings.length > 0) {
-        const randomIndex = Math.floor(Math.random() * filteredSightings.length);
-        setActiveSighting(filteredSightings[randomIndex]);
+    // Tropics
+    ctx.strokeStyle = 'rgba(0,255,80,0.07)';
+    ctx.lineWidth = 0.5;
+    [23.5, -23.5, 66.5, -66.5].forEach(lat => {
+      const p = project(lat, 0, W/zoom, H/zoom);
+      ctx.beginPath(); ctx.moveTo(0, p.y); ctx.lineTo(W/zoom, p.y); ctx.stroke();
+    });
+
+    // Meridians
+    for (let lng = -180; lng <= 180; lng += 30) {
+      const x = (lng + 180) / 360 * W / zoom;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H/zoom); ctx.stroke();
+    }
+
+    // ── SIGHTING DOTS ──
+    SIGHTINGS.forEach(s => {
+      const { x, y } = project(s.lat, s.lng, W/zoom, H/zoom);
+      const isSelected = s.id === selected.id;
+      const pulseSince = pulseMap[s.id];
+      const pulseAge = pulseSince ? (Date.now() - pulseSince) / 1000 : 0;
+      const pulseAlpha = pulseSince ? Math.max(0, 1 - pulseAge / 1.5) : 0;
+
+      // Pulse ring on recent select
+      if (pulseAlpha > 0) {
+        const r = 8 + pulseAge * 24;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = s.color + Math.floor(pulseAlpha * 255).toString(16).padStart(2,'0');
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
       }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [filteredSightings]);
 
-  const ShapeIcon = ({ type }: { type: string }) => {
-    const shapes = {
-      circle: <div className="w-4 h-4 border-2 border-current rounded-full" />,
-      triangle: <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-l-transparent border-r-transparent" style={{ borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: 'currentColor' }} />,
-      disk: <div className="w-4 h-4 border-2 border-current rounded-full flex items-center justify-center"><div className="w-1.5 h-1.5 bg-current rounded-full" /></div>,
-      orb: <div className="relative w-4 h-4"><div className="absolute inset-0 border-2 border-current rounded-full" /><div className="absolute inset-1 border border-current/50 rounded-full" /></div>,
-      cloud: <div className="w-4 h-3 border border-current rounded-full relative"><div className="absolute -left-1 -top-0.5 w-3 h-2 border border-current rounded-full" /></div>,
-    };
-    return shapes[type as keyof typeof shapes] || shapes.circle;
+      // Outer halo
+      const haloR = isSelected ? 14 + Math.sin(tick * 0.12) * 3 : 8;
+      ctx.beginPath();
+      ctx.arc(x, y, haloR, 0, Math.PI * 2);
+      ctx.fillStyle = s.color + (isSelected ? '22' : '11');
+      ctx.fill();
+      ctx.strokeStyle = s.color + (isSelected ? 'aa' : '44');
+      ctx.lineWidth = isSelected ? 1.5 : 0.8;
+      ctx.stroke();
+
+      // Core dot
+      ctx.beginPath();
+      ctx.arc(x, y, isSelected ? 5 : 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.shadowColor = s.color;
+      ctx.shadowBlur = isSelected ? 12 : 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Label
+      if (isSelected || s.intensity > 85) {
+        ctx.fillStyle = isSelected ? '#ffffff' : 'rgba(255,255,255,0.55)';
+        ctx.font = `bold ${isSelected ? 10 : 8}px "Share Tech Mono", monospace`;
+        ctx.fillText(s.city, x + 8, y - 6);
+        if (isSelected) {
+          ctx.fillStyle = s.color;
+          ctx.font = '8px "Share Tech Mono", monospace';
+          ctx.fillText(`${s.intensity}% · ${s.count}`, x + 8, y + 4);
+        }
+      }
+    });
+
+    // ── SCAN LINE ──
+    const scanY = (tick * 2) % (H / zoom);
+    const scanGrad = ctx.createLinearGradient(0, scanY - 4, 0, scanY + 4);
+    scanGrad.addColorStop(0, 'transparent');
+    scanGrad.addColorStop(0.5, 'rgba(0,255,80,0.12)');
+    scanGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = scanGrad;
+    ctx.fillRect(0, scanY - 4, W / zoom, 8);
+
+    ctx.restore();
+
+    // ── VIGNETTE ──
+    const vig = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, W*0.8);
+    vig.addColorStop(0, 'transparent');
+    vig.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+
+    // ── HUD OVERLAY ──
+    // Top-left: STUNUR SCANNER title
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(8, 8, 220, 36);
+    ctx.strokeStyle = 'rgba(0,255,80,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, 8, 220, 36);
+    ctx.fillStyle = '#00ff88';
+    ctx.font = 'bold 13px "Share Tech Mono", monospace';
+    ctx.fillText('◈ STUNUR SCANNER', 16, 22);
+    ctx.fillStyle = 'rgba(0,255,80,0.5)';
+    ctx.font = '9px "Share Tech Mono", monospace';
+    ctx.fillText(`LIVE · ${SIGHTINGS.length} NODES ACTIVE`, 16, 36);
+
+    // Top-right: clock + zoom
+    const now = new Date();
+    const timeStr = now.toUTCString().slice(17, 25) + ' UTC';
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(W - 180, 8, 172, 36);
+    ctx.strokeStyle = 'rgba(0,255,80,0.3)';
+    ctx.strokeRect(W - 180, 8, 172, 36);
+    ctx.fillStyle = 'rgba(0,255,80,0.6)';
+    ctx.font = '9px "Share Tech Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(timeStr, W - 12, 22);
+    ctx.fillText(`ZOOM ${Math.round(zoom * 100)}%`, W - 12, 36);
+    ctx.textAlign = 'left';
+
+    // Bottom: selected sighting HUD
+    if (selected) {
+      const hudW = Math.min(W - 16, 500);
+      const hudX = (W - hudW) / 2;
+      const hudY = H - 80;
+      ctx.fillStyle = 'rgba(0,5,0,0.85)';
+      ctx.fillRect(hudX, hudY, hudW, 68);
+      ctx.strokeStyle = selected.color + 'bb';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(hudX, hudY, hudW, 68);
+
+      // Blinking dot
+      if (Math.floor(tick / 8) % 2 === 0) {
+        ctx.beginPath();
+        ctx.arc(hudX + 14, hudY + 14, 4, 0, Math.PI * 2);
+        ctx.fillStyle = selected.color;
+        ctx.shadowColor = selected.color;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px "Share Tech Mono", monospace';
+      ctx.fillText(`${selected.city}, ${selected.country}`, hudX + 26, hudY + 18);
+
+      ctx.fillStyle = selected.color;
+      ctx.font = '9px "Share Tech Mono", monospace';
+      ctx.fillText(`TYPE: ${selected.type}`, hudX + 12, hudY + 34);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText(`INTENSITY: ${selected.intensity}%  ·  ACTIVE: ${selected.count}  ·  ${selected.ago} AGO`, hudX + 12, hudY + 48);
+
+      // Intensity bar
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect(hudX + 12, hudY + 56, hudW - 24, 5);
+      const barGrad = ctx.createLinearGradient(hudX + 12, 0, hudX + 12 + (hudW - 24) * selected.intensity / 100, 0);
+      barGrad.addColorStop(0, selected.color);
+      barGrad.addColorStop(1, '#ffffff');
+      ctx.fillStyle = barGrad;
+      ctx.fillRect(hudX + 12, hudY + 56, (hudW - 24) * selected.intensity / 100, 5);
+    }
+
+  }, [tick, selected, offset, zoom, pulseMap]);
+
+  useEffect(() => { drawMap(); }, [drawMap]);
+
+  // Resize canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const ro = new ResizeObserver(() => {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    });
+    ro.observe(container);
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    return () => ro.disconnect();
+  }, []);
+
+  // Click to select sighting
+  const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left - offset.x) / zoom;
+    const my = (e.clientY - rect.top - offset.y) / zoom;
+    const W = canvas.width / zoom;
+    const H = canvas.height / zoom;
+
+    let closest: Sighting | null = null;
+    let minDist = 20;
+    SIGHTINGS.forEach(s => {
+      const { x, y } = project(s.lat, s.lng, W, H);
+      const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2);
+      if (dist < minDist) { minDist = dist; closest = s; }
+    });
+    if (closest) {
+      setSelected(closest);
+      setPulseMap(p => ({ ...p, [(closest as Sighting).id]: Date.now() }));
+    }
+  }, [offset, zoom]);
+
+  // Drag to pan
+  const onMouseDown = (e: React.MouseEvent) => {
+    setDragging(true);
+    dragStart.current = { x: e.clientX, y: e.clientY, ox: offset.x, oy: offset.y };
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragging) return;
+    setOffset({
+      x: dragStart.current.ox + (e.clientX - dragStart.current.x),
+      y: dragStart.current.oy + (e.clientY - dragStart.current.y),
+    });
+  };
+  const onMouseUp = () => setDragging(false);
+
+  // Scroll to zoom
+  const onWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    setZoom(z => Math.max(0.5, Math.min(4, z - e.deltaY * 0.001)));
   };
 
   return (
-    <div id="stoner-scanner" className="min-h-screen bg-black text-white p-4 md:p-8 font-mono relative overflow-hidden">
-      {/* Ambient background effect */}
-      <div className="fixed inset-0 pointer-events-none opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 50%, #00ff41 0%, transparent 50%), radial-gradient(circle at 80% 80%, #ff006e 0%, transparent 50%)',
-          filter: 'blur(120px)',
-        }} />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 border-4 border-cyan-400 rounded-full flex items-center justify-center relative">
-              <div className="w-8 h-8 border-2 border-cyan-400 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
-              <div className="absolute inset-0 border-2 border-transparent border-t-red-500 border-r-red-500 rounded-full animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
-            </div>
-            <div>
-              <h1 className="text-5xl md:text-6xl font-black text-red-500 tracking-widest" style={{ textShadow: '0 0 20px rgba(255,0,0,0.5)' }}>
-                STUNUR SCANNER
-              </h1>
-              <p className="text-cyan-400 text-sm tracking-[0.2em] mt-1">GLOBAL NETWORK SURVEILLANCE · ACTIVE DETECTION</p>
-            </div>
-          </div>
-
-          {/* Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-2 border-red-500/40 bg-red-950/20 p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="border border-green-400/50 bg-green-950/30 p-3">
-              <div className="text-green-400 font-black text-2xl">{stats.today}</div>
-              <div className="text-green-400/60 text-[10px] tracking-widest uppercase">TODAY</div>
-            </motion.div>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }} className="border border-cyan-400/50 bg-cyan-950/30 p-3">
-              <div className="text-cyan-400 font-black text-2xl">{stats.countries}</div>
-              <div className="text-cyan-400/60 text-[10px] tracking-widest uppercase">COUNTRIES</div>
-            </motion.div>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2 }} className="border border-yellow-400/50 bg-yellow-950/30 p-3">
-              <div className="text-yellow-400 font-black text-2xl">⚡ {stats.highAlerts}</div>
-              <div className="text-yellow-400/60 text-[10px] tracking-widest uppercase">HIGH ALERT</div>
-            </motion.div>
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 }} className="border border-magenta-400/50 bg-magenta-950/30 p-3">
-              <div className="text-magenta-400 font-black text-2xl">{stats.total}</div>
-              <div className="text-magenta-400/60 text-[10px] tracking-widest uppercase">TOTAL COUNT</div>
-            </motion.div>
-          </div>
-
-          {/* Live Feed Ticker */}
-          <div className="mt-4 border-2 border-green-400/40 bg-black/60 p-2 overflow-hidden">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-green-400 text-[10px] font-black tracking-widest">LIVE FEED ACTIVE</span>
-              <span className="text-green-400/40 text-[10px]">SCANNING NUFORG · MUFON · AARO</span>
-            </div>
-            <div className="overflow-hidden">
-              <motion.div animate={{ x: [0, -1000] }} transition={{ duration: 20, repeat: Infinity, linear: true }} className="whitespace-nowrap text-green-400/60 text-[9px]">
-                {[...Array(3)].map((_, i) => (
-                  <span key={i}>
-                    🌍 AMSTERDAM: 847 ACTIVE · BARCELONA: 512 ACTIVE · DENVER: 589 ACTIVE · TEL AVIV: 734 ACTIVE · PORTLAND: 504 ACTIVE · DUBLIN: 423 ACTIVE · &nbsp;&nbsp;&nbsp;
-                  </span>
-                ))}
-              </motion.div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Scanner Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Main Display */}
-          <div className="lg:col-span-2">
-            {/* Tab Navigation */}
-            <div className="flex gap-2 mb-4 border-b-2 border-red-500/40 pb-4">
-              {(['feed', 'map', 'stats'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex items-center gap-2 px-4 py-2 font-black text-xs uppercase tracking-widest transition-all ${
-                    activeTab === tab
-                      ? 'text-white bg-red-600/80 border-2 border-red-400'
-                      : 'text-red-400/60 border-2 border-red-900/40 hover:border-red-600/60'
-                  }`}
-                >
-                  {tab === 'feed' && '📡'} {tab === 'map' && '🗺️'} {tab === 'stats' && '📊'}
-                  {tab.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
-            {/* Content Area */}
-            <AnimatePresence mode="wait">
-              {activeTab === 'map' && (
-                <motion.div key="map" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative w-full h-[500px] md:h-[600px] bg-black border-4 border-red-500/60 overflow-hidden">
-                  {/* Map background grid */}
-                  <div className="absolute inset-0" style={{
-                    backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(76,175,80,.1) 25%, rgba(76,175,80,.1) 26%, transparent 27%, transparent 74%, rgba(76,175,80,.1) 75%, rgba(76,175,80,.1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(76,175,80,.1) 25%, rgba(76,175,80,.1) 26%, transparent 27%, transparent 74%, rgba(76,175,80,.1) 75%, rgba(76,175,80,.1) 76%, transparent 77%, transparent)',
-                    backgroundSize: `${50 * (zoom / 100)}px ${50 * (zoom / 100)}px`,
-                  }} />
-
-                  {/* SVG Map with sightings */}
-                  <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 10px rgba(255, 0, 0, 0.3))' }}>
-                    <circle cx="50%" cy="50%" r="48%" fill="none" stroke="rgba(255, 0, 0, 0.2)" strokeWidth="2" />
-                    
-                    {filteredSightings.map((sighting) => {
-                      const x = (sighting.longitude + 180) / 360 * 100;
-                      const y = (90 - sighting.latitude) / 180 * 100;
-                      const isActive = activeSighting.id === sighting.id;
-                      return (
-                        <g key={sighting.id} onClick={() => setActiveSighting(sighting)} style={{ cursor: 'pointer' }}>
-                          <circle cx={`${x}%`} cy={`${y}%`} r={isActive ? 8 : 5} fill={sighting.color} opacity={isActive ? 0.8 : 0.5} style={{ filter: 'drop-shadow(0 0 8px ' + sighting.color + ')' }} />
-                          <circle cx={`${x}%`} cy={`${y}%`} r={isActive ? 12 : 8} fill="none" stroke={sighting.color} strokeWidth={1} opacity={isActive ? 0.6 : 0.2} style={{ animation: isActive ? 'pulse 1.5s infinite' : 'none' }} />
-                        </g>
-                      );
-                    })}
-                  </svg>
-
-                  {/* Scan line */}
-                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-b from-transparent via-red-500 to-transparent pointer-events-none" style={{ top: '50%', animation: 'scanline 4s linear infinite' }} />
-
-                  {/* Active sighting info */}
-                  {activeSighting && (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="absolute bottom-6 left-6 right-6 bg-black/90 border-2 border-green-400 p-4" style={{ boxShadow: '0 0 20px rgba(0,255,65,0.3)' }}>
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Radio className="w-4 h-4 text-green-400" />
-                            <h3 className="font-black text-green-400 text-sm uppercase tracking-wider">{typeEmojis[activeSighting.type as keyof typeof typeEmojis]} {activeSighting.location}, {activeSighting.country}</h3>
-                          </div>
-                          <div className="flex gap-4 text-[11px]">
-                            <div><span className="text-cyan-400 font-black">{activeSighting.intensity}%</span> <span className="text-white/50">INTENSITY</span></div>
-                            <div><span className="text-yellow-400 font-black">{activeSighting.count}</span> <span className="text-white/50">ACTIVE</span></div>
-                            <div><span className="text-magenta-400 font-black">{activeSighting.timestamp}</span> <span className="text-white/50">AGO</span></div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="w-12 h-12 border-2 border-green-400 rounded-sm flex items-center justify-center text-green-400 font-black text-lg" style={{ boxShadow: '0 0 10px rgba(0,255,65,0.5)' }}>
-                            {activeSighting.intensity > 85 ? '🔴' : activeSighting.intensity > 75 ? '🟡' : '🟢'}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Zoom controls */}
-                  <div className="absolute top-6 right-6 flex flex-col gap-2 z-20">
-                    <button onClick={() => setZoom(Math.min(200, zoom + 20))} className="w-8 h-8 border-2 border-green-400 flex items-center justify-center text-green-400 hover:bg-green-400/20 transition-all">
-                      <ZoomIn className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => setZoom(Math.max(50, zoom - 20))} className="w-8 h-8 border-2 border-green-400 flex items-center justify-center text-green-400 hover:bg-green-400/20 transition-all">
-                      <ZoomOut className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {activeTab === 'feed' && (
-                <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="border-4 border-red-500/60 bg-black max-h-[600px] overflow-y-auto">
-                  {filteredSightings.map((sight, i) => (
-                    <motion.div key={sight.id} initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.05 }} onClick={() => setActiveSighting(sight)} className={`p-4 border-b-2 border-red-900/40 cursor-pointer transition-all ${activeSighting.id === sight.id ? 'bg-red-600/30 border-l-4 border-l-green-400' : 'hover:bg-red-950/20'}`}>
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-2xl">{typeEmojis[sight.type as keyof typeof typeEmojis]}</span>
-                            <h4 className="font-black text-white text-sm uppercase tracking-wider">{sight.location}</h4>
-                            <span className="text-white/40 text-xs">{sight.country}</span>
-                          </div>
-                          <div className="flex gap-4 text-[10px]">
-                            <span className="text-green-400">🟢 {sight.count} ACTIVE</span>
-                            <span className="text-cyan-400">📡 {sight.intensity}% SIGNAL</span>
-                            <span className="text-yellow-400">⏱️ {sight.timestamp}</span>
-                          </div>
-                        </div>
-                        <div className="w-16 h-1 bg-red-950 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-green-400 to-cyan-400" style={{ width: `${sight.intensity}%` }} />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-
-              {activeTab === 'stats' && (
-                <motion.div key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="border-4 border-red-500/60 bg-black p-6">
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="border-2 border-cyan-400/60 bg-cyan-950/30 p-4">
-                      <TrendingUp className="w-6 h-6 text-cyan-400 mb-2" />
-                      <div className="text-3xl font-black text-cyan-400 mb-1">{filteredSightings.length}</div>
-                      <div className="text-cyan-400/60 text-xs uppercase tracking-widest">SIGHTINGS</div>
-                    </div>
-                    <div className="border-2 border-green-400/60 bg-green-950/30 p-4">
-                      <MapPin className="w-6 h-6 text-green-400 mb-2" />
-                      <div className="text-3xl font-black text-green-400 mb-1">{new Set(filteredSightings.map(s => s.country)).size}</div>
-                      <div className="text-green-400/60 text-xs uppercase tracking-widest">LOCATIONS</div>
-                    </div>
-                  </div>
-                  <div className="border-2 border-white/20 p-4 bg-white/5">
-                    <h4 className="font-black text-white mb-4 uppercase tracking-wider">SIGHTING TYPES</h4>
-                    {Object.entries(typeEmojis).map(([type, emoji]) => {
-                      const count = filteredSightings.filter(s => s.type === type).length;
-                      return (
-                        <div key={type} className="mb-3">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-white/80 text-sm">{emoji} {type.toUpperCase()}</span>
-                            <span className="font-black text-yellow-400">{count}</span>
-                          </div>
-                          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-yellow-400 to-red-500" style={{ width: `${(count / filteredSightings.length) * 100}%` }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Filter Sidebar */}
-          <div className="border-4 border-red-500/60 bg-black p-4">
-            <div className="mb-4 flex items-center gap-2">
-              <Filter className="w-4 h-4 text-red-400" />
-              <h3 className="font-black text-red-400 uppercase tracking-wider text-sm">FILTER</h3>
-            </div>
-
-            <button onClick={() => setSelectedType(null)} className={`w-full mb-3 py-3 font-black text-xs uppercase tracking-widest transition-all border-2 ${!selectedType ? 'border-green-400 bg-green-400/20 text-green-400' : 'border-green-400/30 text-green-400/60 hover:border-green-400/60'}`}>
-              ALL
-            </button>
-
-            <div className="space-y-2 mb-6">
-              {Object.entries(typeEmojis).map(([type, emoji]) => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`w-full py-2 px-3 font-black text-xs uppercase tracking-widest transition-all border-2 flex items-center gap-2 ${
-                    selectedType === type
-                      ? 'border-cyan-400 bg-cyan-400/20 text-cyan-400'
-                      : 'border-cyan-400/30 text-cyan-400/60 hover:border-cyan-400/60'
-                  }`}
-                >
-                  {emoji} {type}
-                </button>
-              ))}
-            </div>
-
-            <div className="border-t-2 border-red-900/40 pt-4">
-              <h4 className="font-black text-white/60 text-[10px] uppercase tracking-widest mb-3">TOP LOCATIONS</h4>
-              <div className="space-y-2">
-                {filteredSightings.slice(0, 5).map((sight) => (
-                  <button
-                    key={sight.id}
-                    onClick={() => setActiveSighting(sight)}
-                    className={`w-full text-left p-2 text-[11px] border-l-2 transition-all ${activeSighting.id === sight.id ? 'border-green-400 bg-green-400/10 text-green-400' : 'border-white/10 text-white/60 hover:border-white/30 hover:text-white/80'}`}
-                  >
-                    <div className="font-black">{sight.location}</div>
-                    <div className="text-[9px] opacity-60">{sight.count} active</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer info */}
-        <div className="border-t-2 border-red-500/40 pt-4 flex flex-wrap justify-center gap-6 text-[10px] font-black text-red-500/60 uppercase tracking-widest">
-          <span>SYSTEM ONLINE</span>
-          <span>·</span>
-          <span>NETWORK ACTIVE</span>
-          <span>·</span>
-          <span>MONITORING ENABLED</span>
-          <span>·</span>
-          <span>UTC TIME 17:34:56</span>
-        </div>
-      </div>
-
+    <section id="stoner-scanner" style={{ padding: '48px 16px', background: '#080808' }}>
       <style>{`
-        @keyframes scanline {
-          0% { top: 0; }
-          100% { top: 100%; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 0.2; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
       `}</style>
-    </div>
+
+      {/* Section header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16 }}>
+        <span style={{ color: '#cc0000', fontSize: 18 }}>🛸</span>
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(1.4rem, 3vw, 2rem)', letterSpacing: '0.15em', color: '#fff' }}>
+          GLOBAL STUNUR SCANNER
+        </span>
+      </div>
+      <p style={{ textAlign: 'center', fontFamily: "'Share Tech Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em', marginBottom: 16 }}>
+        CLICK SIGHTINGS TO ZOOM IN · SCROLL TO ZOOM · DRAG TO PAN
+      </p>
+
+      {/* Map container */}
+      <div
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: 900,
+          height: 520,
+          margin: '0 auto',
+          border: '1px solid rgba(0,255,80,0.2)',
+          boxShadow: '0 0 40px rgba(0,255,80,0.05), inset 0 0 60px rgba(0,0,0,0.5)',
+          cursor: dragging ? 'grabbing' : 'crosshair',
+          overflow: 'hidden',
+          borderRadius: 2,
+        }}
+      >
+        <canvas
+          ref={canvasRef}
+          style={{ display: 'block', width: '100%', height: '100%' }}
+          onClick={handleClick}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+          onWheel={onWheel}
+        />
+
+        {/* Corner decorations */}
+        {[
+          { top:0, left:0, borderTop:'2px solid rgba(0,255,80,0.5)', borderLeft:'2px solid rgba(0,255,80,0.5)', width:20, height:20 },
+          { top:0, right:0, borderTop:'2px solid rgba(0,255,80,0.5)', borderRight:'2px solid rgba(0,255,80,0.5)', width:20, height:20 },
+          { bottom:0, left:0, borderBottom:'2px solid rgba(0,255,80,0.5)', borderLeft:'2px solid rgba(0,255,80,0.5)', width:20, height:20 },
+          { bottom:0, right:0, borderBottom:'2px solid rgba(0,255,80,0.5)', borderRight:'2px solid rgba(0,255,80,0.5)', width:20, height:20 },
+        ].map((style, i) => (
+          <div key={i} style={{ position: 'absolute', ...style }} />
+        ))}
+
+        {/* Zoom controls */}
+        <div style={{ position: 'absolute', bottom: 90, right: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {[{label:'+', delta:0.25}, {label:'−', delta:-0.25}].map(({label, delta}) => (
+            <button
+              key={label}
+              onClick={() => setZoom(z => Math.max(0.5, Math.min(4, z + delta)))}
+              style={{
+                width: 28, height: 28, background: 'rgba(0,5,0,0.85)',
+                border: '1px solid rgba(0,255,80,0.4)', color: '#00ff88',
+                fontFamily: "'Share Tech Mono', monospace", fontSize: 16,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >{label}</button>
+          ))}
+          <button
+            onClick={() => { setZoom(1); setOffset({ x: 0, y: 0 }); }}
+            style={{
+              width: 28, height: 28, background: 'rgba(0,5,0,0.85)',
+              border: '1px solid rgba(0,255,80,0.3)', color: 'rgba(0,255,80,0.5)',
+              fontFamily: "'Share Tech Mono', monospace", fontSize: 8,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              letterSpacing: '0.05em',
+            }}
+          >RST</button>
+        </div>
+      </div>
+
+      {/* Live feed strip */}
+      <div style={{
+        maxWidth: 900, margin: '0 auto', marginTop: 4,
+        background: 'rgba(0,5,0,0.9)',
+        border: '1px solid rgba(0,255,80,0.15)',
+        borderTop: 'none',
+        padding: '6px 12px',
+        display: 'flex', alignItems: 'center', gap: 8,
+        overflow: 'hidden',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 6px #00ff88', animation: 'pulse 1s infinite' }} />
+          <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 9, color: '#00ff88', letterSpacing: '0.2em' }}>LIVE</span>
+        </div>
+        <div style={{ overflow: 'hidden', flex: 1 }}>
+          <div style={{ display: 'flex', whiteSpace: 'nowrap', animation: 'ticker 20s linear infinite' }}>
+            {[...SIGHTINGS, ...SIGHTINGS].map((s, i) => (
+              <span key={i} style={{ marginRight: 32, fontFamily: "'Share Tech Mono', monospace", fontSize: 9, color: 'rgba(0,255,80,0.5)', letterSpacing: '0.1em' }}>
+                ◆ {s.city}: <span style={{ color: s.color }}>{s.count} ACTIVE</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
