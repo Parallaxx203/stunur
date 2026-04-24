@@ -6,8 +6,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const LLMAPI_BASE = "https://api.llmapi.ai/v1";
-const IMAGE_MODEL = "google-ai-studio/gemini-2.5-flash-image";
+const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+// Nano Banana 2 — fast, high-quality image editing/generation that respects reference images
+const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
 
 // Load the locked character reference image (base64) — bundled with the function
 let REFERENCE_DATA_URL: string | null = null;
@@ -21,27 +22,26 @@ try {
 }
 
 const STYLE_LOCK = `
-You MUST generate the SAME character shown in the attached reference image.
-Do NOT invent a new face. Do NOT make it photo-realistic. Do NOT change the character.
+CRITICAL INSTRUCTION: You are EDITING the attached reference image. The character in the reference image MUST appear in the output EXACTLY as shown — same face, same hair, same clothes, same style. DO NOT invent a new character. DO NOT make it photo-realistic. DO NOT change the art style.
 
-CHARACTER (FIXED — never deviate):
-- Stylized illustrated bust of a fatigued male figure ("Wojak" + Junji Ito blend).
-- Hair: SHOCKING DISHEVELED WHITE, spiky, erratic, frayed points.
-- Skin: pale, sallow, heavy stippling and cross-hatched distress lines.
-- Eyes: deeply BLOODSHOT, heavy bags, sunken sockets, dark empty pupils, thousand-yard stare.
-- Facial hair: scruffy dark five-o'clock shadow stubble.
-- Expression: profoundly exhausted, somber, world-weary.
-- Apparel: BLACK textured blazer over a muted dark CRIMSON RED crew-neck t-shirt.
-- A LIT CIGARETTE hangs from the right corner of his mouth, glowing orange tip, thin wispy smoke trailing up-right.
+THE CHARACTER (copy exactly from reference, NEVER deviate):
+- Stylized illustrated bust of a fatigued male figure ("Wojak" + Junji Ito blend)
+- Hair: SHOCKING DISHEVELED WHITE, spiky, erratic, frayed jagged points
+- Skin: pale, sallow, heavy stippling and cross-hatched distress lines
+- Eyes: deeply BLOODSHOT, heavy bags, sunken sockets, dark empty pupils, thousand-yard stare
+- Facial hair: scruffy dark five-o'clock shadow stubble
+- Expression: profoundly exhausted, somber, world-weary
+- Apparel base: BLACK textured blazer over a dark CRIMSON RED crew-neck t-shirt (may swap for scene-appropriate clothing while keeping body proportions and face IDENTICAL)
+- A LIT CIGARETTE in the corner of his mouth, glowing orange tip, thin wispy smoke trailing up
 
-STYLE (FIXED):
-- Dark graphic novel ink illustration, intricate pen-and-ink line work.
-- Heavy stippling, dot-work, cross-hatching, gritty texture.
-- Muted somber palette: black, dark crimson, off-white, grey, sallow skin. High contrast.
-- Mood: melancholic, depleted, underground.
+ART STYLE (FIXED — never change):
+- Dark graphic novel ink illustration with intricate pen-and-ink line work
+- Heavy stippling, dot-work, cross-hatching, gritty texture
+- Muted somber palette: black, dark crimson, off-white, grey, sallow skin
+- High contrast, melancholic, depleted, underground mood
+- NEVER photo-realistic, NEVER 3D render, NEVER anime, NEVER cartoon
 
-The user concept below ONLY changes the SCENE/SETTING/ACTION around this exact character.
-Keep the character identical to the reference at all times.
+YOUR TASK: Place this EXACT character (from the reference image) into the new scene described below. Only the SCENE, BACKGROUND, and SECONDARY ELEMENTS change. The character's face, hair, eyes, expression, and overall illustrated style remain IDENTICAL to the reference.
 `.trim();
 
 Deno.serve(async (req) => {
@@ -50,10 +50,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const LLMAPI_KEY = Deno.env.get("LLMAPI_KEY");
-    if (!LLMAPI_KEY) {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "LLMAPI_KEY is not configured" }),
+        JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -73,27 +73,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    const sceneInstruction =
-      `SCENE / CONCEPT (only this changes — character stays identical to reference): ${prompt}`;
-
-    const userContent: any[] = [
-      { type: "text", text: `${STYLE_LOCK}\n\n${sceneInstruction}` },
-    ];
-    if (REFERENCE_DATA_URL) {
-      userContent.push({
-        type: "image_url",
-        image_url: { url: REFERENCE_DATA_URL },
-      });
+    if (!REFERENCE_DATA_URL) {
+      return new Response(
+        JSON.stringify({ error: "Reference character image is missing on server" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    const sceneInstruction =
+      `NEW SCENE / SETTING (only this changes — character must remain IDENTICAL to the attached reference image): ${prompt}`;
 
-    const llmResp = await fetch(`${LLMAPI_BASE}/chat/completions`, {
+    // Reference image FIRST so the model anchors on it, then the instruction
+    const userContent: any[] = [
+      { type: "image_url", image_url: { url: REFERENCE_DATA_URL } },
+      { type: "text", text: `${STYLE_LOCK}\n\n${sceneInstruction}` },
+    ];
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+    const llmResp = await fetch(AI_GATEWAY, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${LLMAPI_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
       },
       body: JSON.stringify({
         model: IMAGE_MODEL,
@@ -107,13 +110,15 @@ Deno.serve(async (req) => {
 
     if (!llmResp.ok) {
       const txt = await llmResp.text();
-      console.error("LLMAPI error", llmResp.status, txt);
-      const status = llmResp.status === 429 ? 429 : 502;
+      console.error("AI gateway error", llmResp.status, txt);
+      const status = llmResp.status === 429 ? 429 : llmResp.status === 402 ? 402 : 502;
       const message =
         llmResp.status === 401
-          ? "Invalid LLMAPI key"
+          ? "Invalid AI key"
           : llmResp.status === 429
           ? "Rate limited. Please wait and try again."
+          : llmResp.status === 402
+          ? "AI credits exhausted. Top up your Lovable AI workspace."
           : `Image API error (${llmResp.status})`;
       return new Response(JSON.stringify({ error: message }), {
         status,
@@ -195,7 +200,7 @@ Deno.serve(async (req) => {
     const { error: dbErr } = await supabase.from("memes").insert({
       image_url: publicUrl,
       prompt,
-      author: `STONER_${Math.floor(Math.random() * 9000) + 1000}`,
+      author: `STUNUR_${Math.floor(Math.random() * 9000) + 1000}`,
     });
 
     if (dbErr) {
