@@ -6,9 +6,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-// Nano Banana 2 — fast, high-quality image editing/generation that respects reference images
-const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+const AI_GATEWAY = "https://api.llmapi.ai/v1/chat/completions";
+// Google Gemini 3.1 Flash with image support
+const IMAGE_MODEL = "gemini-3.1-flash-image-preview";
 
 // Load the locked character reference image — fetched at cold start from Storage
 const REFERENCE_URL =
@@ -62,10 +62,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const LLM_API_KEY = Deno.env.get("LLM_API_KEY");
+    if (!LLM_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
+        JSON.stringify({ error: "LLM_API_KEY is not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -108,12 +108,11 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${LLM_API_KEY}`,
       },
       body: JSON.stringify({
         model: IMAGE_MODEL,
         messages: [{ role: "user", content: userContent }],
-        modalities: ["image", "text"],
       }),
       signal: controller.signal,
     });
@@ -122,15 +121,15 @@ Deno.serve(async (req) => {
 
     if (!llmResp.ok) {
       const txt = await llmResp.text();
-      console.error("AI gateway error", llmResp.status, txt);
+      console.error("LLM API error", llmResp.status, txt);
       const status = llmResp.status === 429 ? 429 : llmResp.status === 402 ? 402 : 502;
       const message =
         llmResp.status === 401
-          ? "Invalid AI key"
+          ? "Invalid LLM API key"
           : llmResp.status === 429
           ? "Rate limited. Please wait and try again."
           : llmResp.status === 402
-          ? "AI credits exhausted. Top up your Lovable AI workspace."
+          ? "LLM API credits exhausted. Top up your account."
           : `Image API error (${llmResp.status})`;
       return new Response(JSON.stringify({ error: message }), {
         status,
