@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     }
 
     const sceneInstruction =
-      `NEW SCENE / SETTING (only this changes — character must remain IDENTICAL to the attached reference image): ${prompt}`;
+      `EDIT THE ATTACHED REFERENCE IMAGE: keep the same character identity and art style, but re-render him in this new scene/pose/outfit — ${prompt}`;
 
     // Reference image FIRST so the model anchors on it, then the instruction
     const userContent: any[] = [
