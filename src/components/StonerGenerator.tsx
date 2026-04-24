@@ -31,8 +31,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
     ];
     const LLM_API_KEY = apiKeys[Math.floor(Math.random() * apiKeys.length)];
     const LLM_API_URL = "https://api.llmapi.ai/v1/chat/completions";
-    // Using Gemini 2.5 Flash - supports vision and can edit images with character lock
-    const MODEL = "gemini-2.5-flash";
+    const MODEL = "gemini-3.1-flash-image-preview";
     const REFERENCE_URL = "https://qwmtopylhkqcbezcnhws.supabase.co/storage/v1/object/public/stoner-memes/_character-reference.jpg";
 
     const STYLE_LOCK = `You are EDITING the attached reference image. Keep the EXACT SAME CHARACTER (same face, identity, art style) and re-render in a new scene/pose/outfit.
