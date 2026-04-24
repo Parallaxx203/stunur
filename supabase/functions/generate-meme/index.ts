@@ -62,8 +62,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Get LLM API key from Lovable secrets
-    const LLM_API_KEY = Deno.env.get("LLM API");
+    // Use LLM API key directly
+    const LLM_API_KEY = "llmapi_56e1bcc7d325e1985199f29375d3e2295292fb263de6b678e2b9f8d2a1502eff";
     if (!LLM_API_KEY) {
       return new Response(
         JSON.stringify({ error: "LLM API key is not configured" }),
