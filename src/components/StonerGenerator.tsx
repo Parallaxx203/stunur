@@ -2,7 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
-  Plus,
   Loader2,
   Download,
   Share2,
@@ -10,9 +9,11 @@ import {
   Send,
   X,
   Sparkles,
+  Lock,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import referenceImg from '@/assets/stoner-reference.jpg';
 
 export function StonerGenerator({ onBack }: { onBack: () => void }) {
   const [prompt, setPrompt] = React.useState('');
