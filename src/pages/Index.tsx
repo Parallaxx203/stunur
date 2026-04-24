@@ -143,7 +143,7 @@ export default function Index() {
 
             <div className="text-[8px] md:text-[10px] font-pixel text-white/40 tracking-[0.4em] uppercase space-y-2">
               <div>© 2026 STUNUR WORLDWIDE · WE SMOKE IN PEACE</div>
-              <div className="text-[7px] md:text-[8px] text-red-500/60 font-pixel mt-4">BUILT BY AUDIFYX</div>
+              <div className="text-[7px] md:text-[8px] text-red-500/60 font-pixel mt-4">built by para1laxx</div>
             </div>
           </div>
         </div>
