@@ -10,13 +10,21 @@ const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 // Nano Banana 2 — fast, high-quality image editing/generation that respects reference images
 const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
 
-// Load the locked character reference image (base64) — bundled with the function
+// Load the locked character reference image — fetched at cold start from Storage
+const REFERENCE_URL =
+  "https://qwmtopylhkqcbezcnhws.supabase.co/storage/v1/object/public/stoner-memes/_character-reference.jpg";
+
 let REFERENCE_DATA_URL: string | null = null;
 try {
-  const b64 = await Deno.readTextFile(
-    new URL("./_reference.b64.txt", import.meta.url),
-  );
-  REFERENCE_DATA_URL = `data:image/jpeg;base64,${b64.trim()}`;
+  const r = await fetch(REFERENCE_URL);
+  if (r.ok) {
+    const buf = new Uint8Array(await r.arrayBuffer());
+    let bin = "";
+    for (let i = 0; i < buf.length; i++) bin += String.fromCharCode(buf[i]);
+    REFERENCE_DATA_URL = `data:image/jpeg;base64,${btoa(bin)}`;
+  } else {
+    console.error("Failed to fetch reference image", r.status);
+  }
 } catch (e) {
   console.error("Failed to load reference image", e);
 }
