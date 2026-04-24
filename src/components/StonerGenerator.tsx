@@ -207,6 +207,12 @@ PROMPT: ${prompt.trim()}`;
 
   return (
     <div className="min-h-screen bg-[#070707] text-white flex flex-col font-body">
+      {/* ── MAINTENANCE BANNER ── */}
+      <div style={{ background: '#cc0000', padding: '10px 16px', textAlign: 'center', borderBottom: '1px solid #990000' }}>
+        <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 11, color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+          ⚠ IMAGE MODEL IS TEMPORARILY DOWN · WILL BE BACK AS SOON AS POSSIBLE ⚠
+        </span>
+      </div>
       <header className="px-4 py-4 border-b border-white/5 bg-black/40 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between">
         <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-full transition-all group">
           <ArrowLeft className="w-5 h-5 text-white/40 group-hover:text-red-600" />
