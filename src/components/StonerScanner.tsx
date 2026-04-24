@@ -124,13 +124,16 @@ function createCar(scene: THREE.Scene, x: number, z: number, color: number, axis
   const group = new THREE.Group();
   const carBody = box(0.85, 0.3, 1.7, stdMat(color, 0, 0, 0.3, 0.7)); carBody.position.set(0, 0.22, 0); group.add(carBody);
   const carCabin = box(0.68, 0.24, 0.9, stdMat(color, 0, 0, 0.3, 0.7)); carCabin.position.set(0, 0.49, -0.05); group.add(carCabin);
-  [[-0.44, 0.14, 0.52], [0.44, 0.14, 0.52], [-0.44, 0.14, -0.52], [0.44, 0.14, -0.52]].forEach(([wx, wy, wz]) => {
-    const w = cyl(0.13, 0.13, 0.1, 8, stdMat(0x111111, 0, 0, 1)); w.rotation.z = Math.PI / 2; w.position.set(wx, wy, wz); group.add(w);
+  const wheelPositions: [number,number,number][] = [[-0.44,0.14,0.52],[0.44,0.14,0.52],[-0.44,0.14,-0.52],[0.44,0.14,-0.52]];
+  wheelPositions.forEach(([wx,wy,wz]) => {
+    const w = cyl(0.13,0.13,0.1,8,stdMat(0x111111,0,0,1)); w.rotation.z = Math.PI/2; w.position.set(wx,wy,wz); group.add(w);
   });
-  const hm = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1 });
-  const tm = new THREE.MeshStandardMaterial({ color: 0xff1100, emissive: 0xff1100, emissiveIntensity: 1 });
-  [[-0.26, 0.22, 0.86], [0.26, 0.22, 0.86]].forEach(([hx, hy, hz]) => { const h = box(0.13, 0.07, 0.02, hm); h.position.set(hx, hy, hz); group.add(h); });
-  [[-0.26, 0.22, -0.86], [0.26, 0.22, -0.86]].forEach(([tx, ty, tz]) => { const t = box(0.13, 0.07, 0.02, tm); t.position.set(tx, ty, tz); group.add(t); });
+  const hm = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:0xffffff, emissiveIntensity:1 });
+  const tm = new THREE.MeshStandardMaterial({ color:0xff1100, emissive:0xff1100, emissiveIntensity:1 });
+  const headPos: [number,number,number][] = [[-0.26,0.22,0.86],[0.26,0.22,0.86]];
+  headPos.forEach(([hx,hy,hz]) => { const h = box(0.13,0.07,0.02,hm); h.position.set(hx,hy,hz); group.add(h); });
+  const tailPos: [number,number,number][] = [[-0.26,0.22,-0.86],[0.26,0.22,-0.86]];
+  tailPos.forEach(([tx,ty,tz]) => { const t = box(0.13,0.07,0.02,tm); t.position.set(tx,ty,tz); group.add(t); });
   group.position.set(x, 0, z);
   if (axis === 'x') group.rotation.y = dir > 0 ? 0 : Math.PI;
   else group.rotation.y = dir > 0 ? Math.PI / 2 : -Math.PI / 2;
@@ -186,7 +189,8 @@ function createCharacter(scene: THREE.Scene, x: number, z: number, type: CharTyp
     }
   }
 
-  [[-0.06, 0], [0.06, 0]].forEach(([ex]) => {
+  const eyePos: [number,number][] = [[-0.06,0],[0.06,0]];
+  eyePos.forEach(([ex]) => {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.028, 5, 5), em); eye.position.set(ex, 1.34, 0.14); group.add(eye);
   });
 
@@ -370,9 +374,9 @@ export function StonerScanner() {
     const weedStores = [createWeedStore(scene, -5.5, 4.5), createWeedStore(scene, 5.5, -4.5), createWeedStore(scene, 0, -18)];
 
     const streetLights = [
-      [-3.6, 7], [3.6, 7], [-3.6, -7], [3.6, -7],
-      [-3.6, 13], [3.6, 13], [-3.6, -13], [3.6, -13],
-      [-10, 3], [10, 3], [-10, -3], [10, -3],
+      [-3.6, 7] as [number,number], [3.6, 7] as [number,number], [-3.6, -7] as [number,number], [3.6, -7] as [number,number],
+      [-3.6, 13] as [number,number], [3.6, 13] as [number,number], [-3.6, -13] as [number,number], [3.6, -13] as [number,number],
+      [-10, 3] as [number,number], [10, 3] as [number,number], [-10, -3] as [number,number], [10, -3] as [number,number],
     ].map(([lx, lz]) => createStreetLight(scene, lx, lz));
 
     // STUNUR neon sign
