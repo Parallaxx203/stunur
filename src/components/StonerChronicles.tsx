@@ -65,7 +65,7 @@ export function StonerChronicles({ onGenerate }: { onGenerate: () => void }) {
 
   const placeholders = Array(6).fill(null).map((_, i) => ({
     id: `ph-${i}`,
-    author: `STONER_${420 + i}`,
+    author: `STUNUR_${420 + i}`,
   }));
 
   return (
@@ -75,7 +75,7 @@ export function StonerChronicles({ onGenerate }: { onGenerate: () => void }) {
           Community Feed
         </h2>
         <div className="w-24 h-1 bg-red-600 rounded-full" />
-        <p className="mt-4 text-[10px] font-pixel text-white/30 tracking-widest uppercase">Latest Stoner Vibes</p>
+        <p className="mt-4 text-[10px] font-pixel text-white/30 tracking-widest uppercase">Latest STUNUR Vibes</p>
       </div>
 
       <div className="relative group/feed">
@@ -138,7 +138,7 @@ export function StonerChronicles({ onGenerate }: { onGenerate: () => void }) {
           {totalCount}
         </motion.div>
         <div className="text-white/40 font-display font-bold tracking-[0.4em] text-[10px] uppercase">
-          Stoners Vibe Checked
+          STUNURs Vibe Checked
         </div>
       </div>
     </div>
