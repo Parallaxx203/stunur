@@ -296,7 +296,7 @@ export function StonerScanner() {
 
     const scene = new THREE.Scene();
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -314,7 +314,7 @@ export function StonerScanner() {
     const ambientLight = new THREE.AmbientLight(0x111122, 0.6); scene.add(ambientLight);
     const sunLight = new THREE.DirectionalLight(0xfff5cc, 1.5);
     sunLight.position.set(-15, 25, 10); sunLight.castShadow = true;
-    sunLight.shadow.mapSize.set(2048, 2048);
+    sunLight.shadow.mapSize.set(1024, 1024);
     sunLight.shadow.camera.left = -30; sunLight.shadow.camera.right = 30;
     sunLight.shadow.camera.top = 30; sunLight.shadow.camera.bottom = -30;
     sunLight.shadow.camera.far = 80;
@@ -326,7 +326,7 @@ export function StonerScanner() {
 
     // Stars
     const sv: number[] = [];
-    for (let i = 0; i < 800; i++) sv.push((Math.random() - 0.5) * 100, 12 + Math.random() * 40, (Math.random() - 0.5) * 100);
+    for (let i = 0; i < 300; i++) sv.push((Math.random() - 0.5) * 100, 12 + Math.random() * 40, (Math.random() - 0.5) * 100);
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.Float32BufferAttribute(sv, 3));
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.12 }));
@@ -386,7 +386,7 @@ export function StonerScanner() {
     const neonSignLight = new THREE.PointLight(0xff0033, 2.5, 10); neonSignLight.position.set(0, 9.5, -12); scene.add(neonSignLight);
 
     // Characters
-    const charTypes: CharType[] = ['stunur', 'stunur', 'stunur', 'wojak', 'wojak', 'pepe', 'pepe', 'doge', 'doge', 'stunur', 'pepe', 'wojak'];
+    const charTypes: CharType[] = ['stunur', 'stunur', 'wojak', 'pepe', 'doge', 'stunur', 'pepe', 'wojak'];
     const characters = charTypes.map((type, i) => {
       const a = (i / charTypes.length) * Math.PI * 2;
       const r = 2 + Math.random() * 9;
@@ -403,7 +403,7 @@ export function StonerScanner() {
 
     // Cars
     const carColors = [0xcc2200, 0x002299, 0x229900, 0xccaa00, 0x888888, 0xffffff, 0xff8800, 0x6600cc];
-    const cars = Array.from({ length: 10 }, (_, i) => {
+    const cars = Array.from({ length: 6 }, (_, i) => {
       const axis: 'x' | 'z' = i % 2 === 0 ? 'x' : 'z';
       const dir = Math.random() > 0.5 ? 1 : -1;
       const lane = (Math.random() > 0.5 ? 1 : -1) * 1.3;
@@ -445,8 +445,16 @@ export function StonerScanner() {
 
     let frame = 0, locTimer = 0, locIdx = 0;
     let frameId: number;
+    let isVisible = false;
+
+    const observer = new IntersectionObserver(entries => {
+      isVisible = entries[0].isIntersecting;
+      if (isVisible) animate();
+    }, { threshold: 0.1 });
+    observer.observe(container);
 
     const animate = () => {
+      if (!isVisible) return;
       frameId = requestAnimationFrame(animate);
       frame++;
 
@@ -544,6 +552,7 @@ export function StonerScanner() {
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
       renderer.domElement.removeEventListener('touchmove', onTouchMove);
       renderer.domElement.removeEventListener('touchend', onTouchEnd);
+      observer.disconnect();
       smokeSystems.forEach(s => s.dispose());
       renderer.dispose();
       if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
