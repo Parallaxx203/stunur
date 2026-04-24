@@ -32,7 +32,7 @@ export default function Index() {
         <div className="relative w-full max-w-7xl mx-auto h-[45vh] md:h-[55vh] bg-zinc-950 overflow-hidden border-b border-white/10">
           <img
             src={bannerImg}
-            alt="STONER — Dubai night skyline meme banner"
+            alt="STUNUR — Dubai night skyline meme banner"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
@@ -46,10 +46,10 @@ export default function Index() {
           className="flex flex-col items-center text-center px-4 pt-10 md:pt-14 pb-2"
         >
           <h1 className="text-[8vw] md:text-[5rem] font-pixel leading-none text-white drop-shadow-[0_0_40px_rgba(255,255,255,0.25)]">
-            S·T·O·N·E·R
+            S·T·U·N·U·R
           </h1>
           <p className="text-[2.4vw] md:text-sm font-bold tracking-[0.6em] md:tracking-[1em] mt-6 uppercase text-white/70">
-            STAY STONED EVERY DAY
+            STAY STUNURED EVERY DAY
           </p>
         </motion.div>
       </div>
@@ -112,7 +112,7 @@ export default function Index() {
         <div className="relative w-full h-[300px] md:h-[400px] bg-zinc-950 overflow-hidden border-b border-white/10">
           <img
             src={footerImg}
-            alt="STONER crew alley scene"
+            alt="STUNUR crew alley scene"
             className="w-full h-full object-cover opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
@@ -122,7 +122,7 @@ export default function Index() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-12">
               <h2 className="font-pixel text-[14px] md:text-[24px] text-white tracking-[0.5em] mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                S·T·O·N·E·R
+                S·T·U·N·U·R
               </h2>
             </div>
 
@@ -137,12 +137,12 @@ export default function Index() {
                 onClick={() => setCurrentView('generator')}
                 className="px-12 py-5 border border-red-500/40 text-white font-pixel transition-all rounded-full hover:bg-red-600/20 hover:border-red-500 hover:scale-105 uppercase text-[12px] md:text-[14px] bg-white/5 backdrop-blur-xl shadow-[0_0_50px_rgba(255,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.15)] active:scale-95"
               >
-                GENERATE NEW STONER
+                GENERATE NEW STUNUR
               </button>
             </div>
 
             <div className="text-[8px] md:text-[10px] font-pixel text-white/40 tracking-[0.4em] uppercase space-y-2">
-              <div>© 2026 STONER WORLDWIDE · WE SMOKE IN PEACE</div>
+              <div>© 2026 STUNUR WORLDWIDE · WE SMOKE IN PEACE</div>
               <div className="text-[7px] md:text-[8px] text-red-500/60 font-pixel mt-4">BUILT BY AUDIFYX</div>
             </div>
           </div>

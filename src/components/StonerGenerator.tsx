@@ -78,7 +78,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
           <div className="w-6 h-6 border border-red-600 rounded-sm flex items-center justify-center">
             <span className="text-[10px] font-pixel text-red-600">S</span>
           </div>
-          <h1 className="font-pixel text-[10px] tracking-widest text-white/90">STONER GENERATOR</h1>
+          <h1 className="font-pixel text-[10px] tracking-widest text-white/90">STUNUR GENERATOR</h1>
         </div>
 
         <div className="w-10" />
@@ -131,12 +131,12 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
                     className="w-full h-full p-4"
                   >
                     <div className="w-full h-full relative group/image rounded-sm overflow-hidden border border-white/10">
-                      <img src={result} alt="Generated Stoner" className="w-full h-full object-cover" />
+                      <img src={result} alt="Generated STUNUR" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/80 opacity-0 group-hover/image:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
                         <div className="flex gap-4">
                           <a
                             href={result}
-                            download="stoner-meme.png"
+                            download="stunur-meme.png"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-4 bg-white text-black rounded-full hover:scale-110 transition-transform flex items-center justify-center shadow-xl cursor-pointer"
@@ -198,14 +198,14 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
                 <div className="relative aspect-square w-full rounded-sm overflow-hidden border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
                   <img
                     src={referenceImg}
-                    alt="Locked Stoner character reference"
+                    alt="Locked STUNUR character reference"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
                   <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5 px-2 py-1 bg-black/70 backdrop-blur-md rounded-sm border border-emerald-500/30">
                     <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
                     <span className="text-[8px] font-pixel text-emerald-300 tracking-wider uppercase truncate">
-                      THE ONLY STONER
+                      THE ONLY STUNUR
                     </span>
                   </div>
                 </div>
@@ -231,7 +231,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="DESCRIBE THE SCENE... (E.G. STONER RIDING A RED LAMBO THROUGH DUBAI AT NIGHT)"
+            placeholder="DESCRIBE THE SCENE... (E.G. STUNUR RIDING A RED LAMBO THROUGH DUBAI AT NIGHT)"
             className="w-full bg-[#0a0a0a] border-2 border-white/10 rounded-sm p-6 pr-24 font-pixel text-[10px] md:text-xs text-white placeholder:text-white/10 focus:outline-none focus:border-red-600/50 transition-all min-h-[100px] resize-none"
           />
           <div className="absolute right-4 bottom-4 flex items-center gap-4">
