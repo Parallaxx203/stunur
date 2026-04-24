@@ -27,14 +27,16 @@ export function StunurFilm() {
       </div>
 
       <div className="relative w-full aspect-video bg-black border-2 border-red-900/40 rounded-sm overflow-hidden shadow-[0_0_50px_rgba(255,0,0,0.2)]">
-        <iframe
-          id="js_video_iframe"
-          src="https://jumpshare.com/embed/hIsIuppp1PyAXwcwJewq"
-          className="absolute inset-0 w-full h-full border-none"
-          title="STUNUR Film"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          controls
+          preload="metadata"
+          poster=""
+          playsInline
+        >
+          <source src="/stunur-film.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
         <div className="absolute inset-0 pointer-events-none border border-red-600/10 z-10" />
       </div>
 
