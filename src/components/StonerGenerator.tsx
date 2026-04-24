@@ -26,7 +26,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
   const [uploadedImage, setUploadedImage] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const DEFAULT_REFERENCE_URL = "https://qwmtopylhkqcbezcnhws.supabase.co/storage/v1/object/public/stoner-memes/_character-reference.jpg";
+  const DEFAULT_REFERENCE_URL = "/stunur-reference.jpg";
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
