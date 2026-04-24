@@ -28,17 +28,6 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
     const LLM_API_KEY = "llmapi_56e1bcc7d325e1985199f29375d3e2295292fb263de6b678e2b9f8d2a1502eff";
     const MODEL = "gemini-3.1-flash-image-preview";
     const REFERENCE_URL = "https://qwmtopylhkqcbezcnhws.supabase.co/storage/v1/object/public/stoner-memes/_character-reference.jpg";
-    
-    // Load reference image
-    const refResp = await fetch(REFERENCE_URL);
-    if (!refResp.ok) throw new Error("Failed to load reference image");
-    const refBuf = await refResp.arrayBuffer();
-    const refUint8 = new Uint8Array(refBuf);
-    let refBase64 = '';
-    for (let i = 0; i < refUint8.length; i++) {
-      refBase64 += String.fromCharCode(refUint8[i]);
-    }
-    const refDataUrl = `data:image/jpeg;base64,${btoa(refBase64)}`;
 
     const STYLE_LOCK = `You are EDITING the attached reference image. Keep the EXACT SAME CHARACTER (same face, identity, art style) and re-render in a new scene/pose/outfit.
 
@@ -72,7 +61,7 @@ ART STYLE:
         messages: [{
           role: "user",
           content: [
-            { type: "image_url", image_url: { url: refDataUrl } },
+            { type: "image_url", image_url: { url: REFERENCE_URL } },
             { type: "text", text: `${STYLE_LOCK}\n\nEDIT: ${prompt.trim()}` },
           ],
         }],
@@ -93,45 +82,38 @@ ART STYLE:
 
     // If postToFeed, upload to Supabase storage
     if (postToFeed) {
-      let bytes: Uint8Array;
-      let contentType = "image/png";
-
-      if (imageUrl.startsWith("data:")) {
-        const match = imageUrl.match(/^data:([^;]+);base64,(.*)$/);
-        if (!match) throw new Error("Bad data URL");
-        contentType = match[1];
-        const bin = atob(match[2]);
-        bytes = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      } else {
+      try {
         const imgResp = await fetch(imageUrl);
         if (!imgResp.ok) throw new Error("Failed to fetch image");
-        contentType = imgResp.headers.get("content-type") || "image/png";
-        bytes = new Uint8Array(await imgResp.arrayBuffer());
+        const contentType = imgResp.headers.get("content-type") || "image/png";
+        const bytes = new Uint8Array(await imgResp.arrayBuffer());
+        
+        const ext = contentType.includes("jpeg") ? "jpg" : contentType.split("/")[1] || "png";
+        const fileName = `${crypto.randomUUID()}.${ext}`;
+
+        const { error: upErr } = await supabase.storage
+          .from("stoner-memes")
+          .upload(fileName, bytes, { contentType, upsert: false });
+
+        if (upErr) throw new Error("Storage upload failed");
+
+        const { data: pub } = supabase.storage
+          .from("stoner-memes")
+          .getPublicUrl(fileName);
+
+        const publicUrl = pub.publicUrl;
+
+        await supabase.from("memes").insert({
+          image_url: publicUrl,
+          prompt: prompt.trim(),
+          author: `STUNUR_${Math.floor(Math.random() * 9000) + 1000}`,
+        });
+
+        return { imageUrl: publicUrl, persisted: true };
+      } catch (err) {
+        console.error("Error saving to feed:", err);
+        return { imageUrl, persisted: false };
       }
-
-      const ext = contentType.includes("jpeg") ? "jpg" : contentType.split("/")[1] || "png";
-      const fileName = `${crypto.randomUUID()}.${ext}`;
-
-      const { error: upErr } = await supabase.storage
-        .from("stoner-memes")
-        .upload(fileName, bytes, { contentType, upsert: false });
-
-      if (upErr) throw new Error("Storage upload failed");
-
-      const { data: pub } = supabase.storage
-        .from("stoner-memes")
-        .getPublicUrl(fileName);
-
-      const publicUrl = pub.publicUrl;
-
-      await supabase.from("memes").insert({
-        image_url: publicUrl,
-        prompt: prompt.trim(),
-        author: `STUNUR_${Math.floor(Math.random() * 9000) + 1000}`,
-      });
-
-      return { imageUrl: publicUrl, persisted: true };
     }
 
     return { imageUrl, persisted: false };
