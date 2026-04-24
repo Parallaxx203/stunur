@@ -47,32 +47,44 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
     const LLM_API_URL = "https://api.llmapi.ai/v1/chat/completions";
     const MODEL = "gemini-3.1-flash-image-preview";
 
-    const imageSource = uploadedImage ? uploadedImage : DEFAULT_REFERENCE_URL;
+    // Convert reference to base64 so model can't ignore it
+    let imageSource = uploadedImage || DEFAULT_REFERENCE_URL;
+    if (!uploadedImage) {
+      try {
+        const refResp = await fetch(DEFAULT_REFERENCE_URL);
+        if (refResp.ok) {
+          const buffer = await refResp.arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          const chunkSize = 8192;
+          let binary = '';
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+          }
+          imageSource = `data:image/jpeg;base64,${btoa(binary)}`;
+        }
+      } catch(e) {
+        console.warn('Could not load reference as base64, using URL', e);
+      }
+    }
 
     const STYLE_LOCK = uploadedImage
       ? `You are EDITING the attached image. Keep the EXACT SAME CHARACTER, face, and art style. Re-render them in a new scene based on the prompt. Keep their identity locked - same face, same style, same person. Only change the scene, pose, outfit, and background.\n\nEDIT: ${prompt.trim()}`
-      : `You are EDITING the attached reference image. Keep the EXACT SAME CHARACTER (same face, identity, art style) and re-render in a new scene/pose/outfit.
+      : `TASK: Edit the attached image. Generate a NEW image featuring THE EXACT SAME CHARACTER from the reference.
 
-CHARACTER LOCK:
-- Stylized illustrated male figure ("Wojak" + Junji Ito blend)
-- Hair: shocking disheveled WHITE, spiky, erratic, jagged frayed points
-- Skin: pale, sallow, heavy stippling and cross-hatched distress lines
-- Eyes: deeply BLOODSHOT, heavy bags, sunken sockets, dark pupils
-- Facial hair: scruffy dark five-o'clock shadow stubble
+STRICT CHARACTER REQUIREMENTS - DO NOT CHANGE ANY OF THESE:
+- This specific character: gaunt older male, extremely pale sallow skin
+- Hair: WHITE, disheveled, spiky, jagged - identical to reference
+- Eyes: bloodshot, dark circles, sunken - identical to reference  
+- Face: cross-hatched distress lines, stubble - identical to reference
+- Art style: dark graphic novel illustration - identical to reference
 
-WHAT CAN CHANGE:
-- Pose, body position, framing, camera angle
-- Clothing and outfit
-- Facial expression (subtle variation OK)
-- Background, setting, lighting, props
+YOU MUST use this exact character. Do not create a new character.
+Do not use Pepe, Wojak, anime, or any other character.
+The character in the reference image IS the character you must draw.
 
-ART STYLE:
-- Dark graphic novel ink illustration
-- Heavy stippling, dot-work, cross-hatching
-- Muted palette: black, dark crimson, off-white, grey
-- High contrast, melancholic mood
+ONLY CHANGE: the scene, background, pose, outfit based on the prompt below.
 
-EDIT: ${prompt.trim()}`;
+PROMPT: ${prompt.trim()}`;
 
     // Try both keys, retry once on failure
     let data: any = null;
