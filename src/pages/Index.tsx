@@ -1,12 +1,12 @@
 import React, { Suspense, lazy } from 'react';
 import { StonerChronicles } from '@/components/StonerChronicles';
-const StonerScanner = lazy(() => import('@/components/StonerScanner').then(m => ({ default: m.StonerScanner })));
 import { StonerGenerator } from '@/components/StonerGenerator';
 import { StunurFilm } from '@/components/StunurFilm';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import bannerImg from '@/assets/stoner-banner.jpg';
 import footerImg from '@/assets/stoner-footer.jpg';
 import referenceImg from '@/assets/stoner-reference.jpg';
+const StonerScanner = lazy(() => import('@/components/StonerScanner').then(m => ({ default: m.StonerScanner })));
 
 export default function Index() {
   const [currentView, setCurrentView] = React.useState<'home' | 'generator'>('home');
