@@ -180,9 +180,9 @@ export default function Index() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 2, background: 'rgba(255,255,255,0.05)' }}>
           {[
             { pct: '50%', title: 'INITIAL BUY', desc: '50% of the initial supply has been bought.' },
-            { pct: '20%', title: 'MARKET MAKING', desc: 'Sold during high-volume activity and used for market making.' },
-            { pct: '20%', title: 'AIRDROPS', desc: 'Locked for future airdrops.' },
-            { pct: '10%', title: '$UNT HOLDERS', desc: 'Locked for one week — airdrop to $UNT holders.' },
+            { pct: '20%', title: 'MARKET MAKING', desc: 'Will be sold during high-volume activity and used for market making.' },
+            { pct: '20%', title: 'FUTURE AIRDROPS', desc: 'Locked for future airdrops.' },
+            { pct: '10%', title: '$UNT HOLDERS', desc: 'Locked for one week. Airdrop to $UNT holders.' },
           ].map(({ pct, title, desc }) => (
             <div key={title} className="token-box">
               <div className="f-display" style={{ fontSize: 52, color: '#cc0000', lineHeight: 1 }}>{pct}</div>
