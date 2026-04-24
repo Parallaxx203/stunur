@@ -24,10 +24,6 @@ export function AudioPlayer() {
   const togglePlay = async () => {
     const a = audioRef.current;
     if (!a) return;
-    if (!TRACK_URL) {
-      alert('Track URL not configured yet.');
-      return;
-    }
     try {
       if (isPlaying) {
         a.pause();
