@@ -139,9 +139,7 @@ export default function Index() {
         <button onClick={() => setCurrentView('generator')} className="nav-btn red">
           ✦ GENERATE STUNUR
         </button>
-        <a href="https://stunur.life" target="_blank" rel="noopener noreferrer" className="nav-btn">
-          🌐 STUNUR.LIFE
-        </a>
+
       </div>
 
       {/* ── TICKER ── */}
