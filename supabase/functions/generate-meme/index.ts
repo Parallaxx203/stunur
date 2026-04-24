@@ -9,6 +9,41 @@ const corsHeaders = {
 const LLMAPI_BASE = "https://api.llmapi.ai/v1";
 const IMAGE_MODEL = "google-ai-studio/gemini-2.5-flash-image";
 
+// Load the locked character reference image (base64) — bundled with the function
+let REFERENCE_DATA_URL: string | null = null;
+try {
+  const b64 = await Deno.readTextFile(
+    new URL("./_reference.b64.txt", import.meta.url),
+  );
+  REFERENCE_DATA_URL = `data:image/jpeg;base64,${b64.trim()}`;
+} catch (e) {
+  console.error("Failed to load reference image", e);
+}
+
+const STYLE_LOCK = `
+You MUST generate the SAME character shown in the attached reference image.
+Do NOT invent a new face. Do NOT make it photo-realistic. Do NOT change the character.
+
+CHARACTER (FIXED — never deviate):
+- Stylized illustrated bust of a fatigued male figure ("Wojak" + Junji Ito blend).
+- Hair: SHOCKING DISHEVELED WHITE, spiky, erratic, frayed points.
+- Skin: pale, sallow, heavy stippling and cross-hatched distress lines.
+- Eyes: deeply BLOODSHOT, heavy bags, sunken sockets, dark empty pupils, thousand-yard stare.
+- Facial hair: scruffy dark five-o'clock shadow stubble.
+- Expression: profoundly exhausted, somber, world-weary.
+- Apparel: BLACK textured blazer over a muted dark CRIMSON RED crew-neck t-shirt.
+- A LIT CIGARETTE hangs from the right corner of his mouth, glowing orange tip, thin wispy smoke trailing up-right.
+
+STYLE (FIXED):
+- Dark graphic novel ink illustration, intricate pen-and-ink line work.
+- Heavy stippling, dot-work, cross-hatching, gritty texture.
+- Muted somber palette: black, dark crimson, off-white, grey, sallow skin. High contrast.
+- Mood: melancholic, depleted, underground.
+
+The user concept below ONLY changes the SCENE/SETTING/ACTION around this exact character.
+Keep the character identical to the reference at all times.
+`.trim();
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -38,13 +73,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    const fullPrompt =
-      `Generate a high-quality stoner-themed meme image. Concept: ${prompt}. ` +
-      `Style: vibrant, slightly gritty, meme-ready, artistic, cinematic. ` +
-      `Ensure the character has red, bloodshot eyes and a chill expression.`;
+    const sceneInstruction =
+      `SCENE / CONCEPT (only this changes — character stays identical to reference): ${prompt}`;
+
+    const userContent: any[] = [
+      { type: "text", text: `${STYLE_LOCK}\n\n${sceneInstruction}` },
+    ];
+    if (REFERENCE_DATA_URL) {
+      userContent.push({
+        type: "image_url",
+        image_url: { url: REFERENCE_DATA_URL },
+      });
+    }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     const llmResp = await fetch(`${LLMAPI_BASE}/chat/completions`, {
       method: "POST",
@@ -54,7 +97,8 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: IMAGE_MODEL,
-        messages: [{ role: "user", content: fullPrompt }],
+        messages: [{ role: "user", content: userContent }],
+        modalities: ["image", "text"],
       }),
       signal: controller.signal,
     });
@@ -89,14 +133,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // If posting to feed, persist to storage + DB; otherwise return raw URL/data
     if (!postToFeed) {
       return new Response(JSON.stringify({ imageUrl, persisted: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Convert data URL or http URL to bytes
     let bytes: Uint8Array;
     let contentType = "image/png";
     if (imageUrl.startsWith("data:")) {
@@ -158,7 +200,6 @@ Deno.serve(async (req) => {
 
     if (dbErr) {
       console.error("DB insert failed", dbErr);
-      // Image is saved; still return the URL
     }
 
     return new Response(
