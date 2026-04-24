@@ -74,33 +74,52 @@ ART STYLE:
 
 EDIT: ${prompt.trim()}`;
 
-    const response = await fetch(LLM_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${LLM_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "image_url", image_url: { url: imageSource } },
-            { type: "text", text: STYLE_LOCK },
-          ],
-        }],
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`LLM API error: ${response.status} - ${error}`);
+    // Try both keys, retry once on failure
+    let data: any = null;
+    let lastError = '';
+    for (const key of apiKeys) {
+      try {
+        const response = await fetch(LLM_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${key}`,
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [{
+              role: "user",
+              content: [
+                { type: "image_url", image_url: { url: imageSource } },
+                { type: "text", text: STYLE_LOCK },
+              ],
+            }],
+          }),
+        });
+        if (!response.ok) {
+          lastError = `API ${response.status}`;
+          continue;
+        }
+        data = await response.json();
+        if (data?.choices?.[0]) break;
+      } catch (e: any) {
+        lastError = e.message;
+        continue;
+      }
     }
 
-    const data = await response.json();
-    const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    if (!data) throw new Error(`Generation failed: ${lastError}`);
+
+    // Handle multiple possible response formats
+    const msg = data?.choices?.[0]?.message;
+    const imageUrl =
+      msg?.images?.[0]?.image_url?.url ||
+      msg?.images?.[0]?.url ||
+      msg?.content?.find?.((c: any) => c.type === 'image_url')?.image_url?.url ||
+      (typeof msg?.content === 'string' && msg.content.startsWith('data:') ? msg.content : null);
 
     if (!imageUrl) {
+      console.error("API response:", JSON.stringify(data).slice(0, 300));
       throw new Error("No image returned from API");
     }
 
