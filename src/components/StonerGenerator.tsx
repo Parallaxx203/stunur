@@ -231,7 +231,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="DESCRIBE YOUR VISION... (E.G. STONER RIDING A RED LAMBO ON MARS)"
+            placeholder="DESCRIBE THE SCENE... (E.G. STONER RIDING A RED LAMBO THROUGH DUBAI AT NIGHT)"
             className="w-full bg-[#0a0a0a] border-2 border-white/10 rounded-sm p-6 pr-24 font-pixel text-[10px] md:text-xs text-white placeholder:text-white/10 focus:outline-none focus:border-red-600/50 transition-all min-h-[100px] resize-none"
           />
           <div className="absolute right-4 bottom-4 flex items-center gap-4">
