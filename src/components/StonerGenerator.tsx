@@ -21,9 +21,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
   const [isPosting, setIsPosting] = React.useState(false);
   const [result, setResult] = React.useState<string | null>(null);
   const [resultPersisted, setResultPersisted] = React.useState(false);
-  const [referenceImages, setReferenceImages] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const callGenerate = async (postToFeed: boolean) => {
     const { data, error: fnError } = await supabase.functions.invoke('generate-meme', {
@@ -67,17 +65,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
     }
   };
 
-  const handleReferenceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const newUrls = Array.from(files).map((file: File) => URL.createObjectURL(file));
-      setReferenceImages((prev) => [...prev, ...newUrls].slice(0, 3));
-    }
-  };
 
-  const removeReference = (index: number) => {
-    setReferenceImages((prev) => prev.filter((_, i) => i !== index));
-  };
 
   return (
     <div className="min-h-screen bg-[#070707] text-white flex flex-col font-body">
