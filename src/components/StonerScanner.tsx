@@ -34,7 +34,7 @@ function createSmokeSystem(scene: THREE.Scene, getPos: () => THREE.Vector3) {
     });
   }
   function update(frame: number) {
-    if (frame % 7 === 0) spawn();
+    if (frame % 14 === 0 && particles.length < 8) spawn();
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i]; p.life++;
       p.mesh.position.add(p.vel);
@@ -295,9 +295,10 @@ export function StonerScanner() {
     if (!container || !hudCanvas) return;
 
     const scene = new THREE.Scene();
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.shadowMap.enabled = true;
+    const isMobile = window.innerWidth < 768;
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, powerPreference: 'low-power' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5));
+    renderer.shadowMap.enabled = !isMobile;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
@@ -326,7 +327,7 @@ export function StonerScanner() {
 
     // Stars
     const sv: number[] = [];
-    for (let i = 0; i < 300; i++) sv.push((Math.random() - 0.5) * 100, 12 + Math.random() * 40, (Math.random() - 0.5) * 100);
+    for (let i = 0; i < 150; i++) sv.push((Math.random() - 0.5) * 100, 12 + Math.random() * 40, (Math.random() - 0.5) * 100);
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.Float32BufferAttribute(sv, 3));
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.12 }));
@@ -358,15 +359,10 @@ export function StonerScanner() {
       { x: -9,  z: -9,  w: 3.5, d: 3.5, h: 7,  label: 'STUNUR' },
       { x: -9,  z: -16, w: 2.5, d: 2.5, h: 10 },
       { x: -9,  z: 9,   w: 3,   d: 3,   h: 5  },
-      { x: -9,  z: 16,  w: 2.8, d: 2.8, h: 8  },
       { x: 9,   z: -9,  w: 3,   d: 3,   h: 9  },
-      { x: 9,   z: -16, w: 3.5, d: 3.5, h: 6  },
       { x: 9,   z: 9,   w: 2.5, d: 2.5, h: 11 },
-      { x: 9,   z: 16,  w: 3,   d: 3,   h: 7  },
-      { x: -18, z: -9,  w: 3,   d: 3,   h: 5  },
       { x: -18, z: 9,   w: 3.5, d: 3.5, h: 8  },
       { x: 18,  z: -9,  w: 3,   d: 3,   h: 6  },
-      { x: 18,  z: 9,   w: 2.5, d: 2.5, h: 9  },
     ];
     const blinkMeshes: THREE.Mesh[] = [];
     bDefs.forEach(({ x, z, w, d, h, label }) => { const { blink } = createBuilding(scene, x, z, w, d, h, label); blinkMeshes.push(blink); });
@@ -386,7 +382,7 @@ export function StonerScanner() {
     const neonSignLight = new THREE.PointLight(0xff0033, 2.5, 10); neonSignLight.position.set(0, 9.5, -12); scene.add(neonSignLight);
 
     // Characters
-    const charTypes: CharType[] = ['stunur', 'stunur', 'wojak', 'pepe', 'doge', 'stunur', 'pepe', 'wojak'];
+    const charTypes: CharType[] = ['stunur', 'stunur', 'wojak', 'pepe', 'doge', 'stunur'];
     const characters = charTypes.map((type, i) => {
       const a = (i / charTypes.length) * Math.PI * 2;
       const r = 2 + Math.random() * 9;
@@ -403,7 +399,7 @@ export function StonerScanner() {
 
     // Cars
     const carColors = [0xcc2200, 0x002299, 0x229900, 0xccaa00, 0x888888, 0xffffff, 0xff8800, 0x6600cc];
-    const cars = Array.from({ length: 6 }, (_, i) => {
+    const cars = Array.from({ length: 4 }, (_, i) => {
       const axis: 'x' | 'z' = i % 2 === 0 ? 'x' : 'z';
       const dir = Math.random() > 0.5 ? 1 : -1;
       const lane = (Math.random() > 0.5 ? 1 : -1) * 1.3;
@@ -457,6 +453,7 @@ export function StonerScanner() {
       if (!isVisible) return;
       frameId = requestAnimationFrame(animate);
       frame++;
+      try {
 
       // Day/night (1200 frames = full cycle)
       const timeOfDay = (frame % 1200) / 1200;
@@ -527,6 +524,7 @@ export function StonerScanner() {
       const hCtx = hudCanvas.getContext('2d');
       if (hCtx) drawHUD(hCtx, hudCanvas.width, hudCanvas.height, frame, SCAN_LOCATIONS[locIdx], timeOfDay);
 
+      } catch(e) { console.warn('Frame error:', e); }
       renderer.render(scene, camera);
     };
 
