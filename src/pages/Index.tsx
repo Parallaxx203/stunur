@@ -10,6 +10,14 @@ const StonerScanner = lazy(() => import('@/components/StonerScanner').then(m => 
 
 export default function Index() {
   const [currentView, setCurrentView] = React.useState<'home' | 'generator'>('home');
+  const [copied, setCopied] = React.useState(false);
+  const CA = '7996tNESBCX9LdXxN8HrWC75JQu2F2tnxBWwqFvRpump';
+  const copyCA = () => {
+    navigator.clipboard.writeText(CA).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   if (currentView === 'generator') {
     return <StonerGenerator onBack={() => setCurrentView('home')} />;
@@ -110,8 +118,8 @@ export default function Index() {
         {/* CA row - styled exactly like MAGA site */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 20px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2 }}>
           <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.15em' }}>CA:</span>
-          <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em' }}>7996tNESBCX9LdXxN8HrWC75JQu2F2tnxBWwqFvRpump</span>
-          <span style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: 14, lineHeight: 1 }} onClick={() => {}}>⧉</span>
+          <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em', cursor: 'pointer' }} onClick={copyCA}>7996tNESBCX9LdXxN8HrWC75JQu2F2tnxBWwqFvRpump</span>
+          <span style={{ cursor: 'pointer', color: copied ? '#00ff88' : 'rgba(255,255,255,0.4)', fontSize: copied ? 10 : 14, lineHeight: 1, transition: 'all 0.2s', fontFamily: "'Share Tech Mono',monospace" }} onClick={copyCA}>{copied ? '✓ COPIED' : '⧉'}</span>
           <span className="f-mono" style={{ fontSize: 9, color: '#00ff88', letterSpacing: '0.2em', marginLeft: 4 }}>✓ NOW LIVE</span>
         </div>
       </div>
