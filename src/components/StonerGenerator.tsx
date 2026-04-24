@@ -24,9 +24,15 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
   const [error, setError] = React.useState<string | null>(null);
 
   const callGenerate = async (postToFeed: boolean) => {
+    // Rotate between both API keys for load balancing
+    const apiKeys = [
+      "llmapi_56e1bcc7d325e1985199f29375d3e2295292fb263de6b678e2b9f8d2a1502eff",
+      "llmapi_d461ba85ea25c8f0efc17febe4dcc4b49424aafe17d3e25d8bade9ede0915332"
+    ];
+    const LLM_API_KEY = apiKeys[Math.floor(Math.random() * apiKeys.length)];
     const LLM_API_URL = "https://api.llmapi.ai/v1/chat/completions";
-    const LLM_API_KEY = "llmapi_56e1bcc7d325e1985199f29375d3e2295292fb263de6b678e2b9f8d2a1502eff";
-    const MODEL = "gemini-3.1-flash-image-preview";
+    // Using Gemini 2.5 Flash - supports vision and can edit images with character lock
+    const MODEL = "gemini-2.5-flash";
     const REFERENCE_URL = "https://qwmtopylhkqcbezcnhws.supabase.co/storage/v1/object/public/stoner-memes/_character-reference.jpg";
 
     const STYLE_LOCK = `You are EDITING the attached reference image. Keep the EXACT SAME CHARACTER (same face, identity, art style) and re-render in a new scene/pose/outfit.
