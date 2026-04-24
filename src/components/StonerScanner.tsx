@@ -502,7 +502,7 @@ export function StonerScanner() {
         fig.leftArm.rotation.x = -Math.sin(fig.walkPhase) * 0.3;
 
         // Ember flicker
-        fig.ember.material.emissiveIntensity = 1.5 + Math.sin(frame * 0.15 + fig.walkPhase) * 0.5;
+        (fig.ember.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.5 + Math.sin(frame * 0.15 + fig.walkPhase) * 0.5;
       });
 
       // Animate cars
@@ -518,11 +518,11 @@ export function StonerScanner() {
 
       // Blink rooftop lights
       blinkingLights.forEach(b => {
-        b.blink.material.emissiveIntensity = Math.floor(frame / 40) % 2 === 0 ? 1 : 0;
+        (b.blink.material as THREE.MeshStandardMaterial).emissiveIntensity = Math.floor(frame / 40) % 2 === 0 ? 1 : 0;
       });
 
       // Neon sign pulse
-      neonSign.material.emissiveIntensity = 1.5 + Math.sin(frame * 0.05) * 0.5;
+      (neonSign.material as THREE.MeshStandardMaterial).emissiveIntensity = 1.5 + Math.sin(frame * 0.05) * 0.5;
       neonLight.intensity = 1.5 + Math.sin(frame * 0.05) * 0.5;
 
       // Ambient color shift
