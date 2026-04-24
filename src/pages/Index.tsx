@@ -139,12 +139,8 @@ export default function Index() {
         <button onClick={() => setCurrentView('generator')} className="nav-btn red">
           ✦ GENERATE STUNUR
         </button>
-        <button onClick={() => document.getElementById('stunur-film')?.scrollIntoView({ behavior: 'smooth' })} className="nav-btn green">
-          📈 LIVE CHART
-          <span className="badge" style={{ background: '#ff6600', color: '#fff', marginLeft: 4 }}>HOT</span>
-        </button>
-        <a href="https://x.com/stunurstudios" target="_blank" rel="noopener noreferrer" className="nav-btn">
-          🌐 STUNUR.IO
+        <a href="https://stunur.life" target="_blank" rel="noopener noreferrer" className="nav-btn">
+          🌐 STUNUR.LIFE
         </a>
       </div>
 
