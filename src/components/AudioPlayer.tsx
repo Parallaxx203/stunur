@@ -2,7 +2,7 @@ import React from 'react';
 import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
 
 // TODO: replace with the direct audio file URL provided by the artist
-const TRACK_URL = '';
+const TRACK_URL = '/stunur-anthem.mp3';
 const TRACK_TITLE = 'STUNUR ANTHEM';
 
 export function AudioPlayer() {
