@@ -122,8 +122,8 @@ function createStreetLight(scene: THREE.Scene, x: number, z: number) {
 
 function createCar(scene: THREE.Scene, x: number, z: number, color: number, axis: 'x' | 'z', dir: number) {
   const group = new THREE.Group();
-  group.add(Object.assign(box(0.85, 0.3, 1.7, stdMat(color, 0, 0, 0.3, 0.7)), { position: new THREE.Vector3(0, 0.22, 0) }));
-  group.add(Object.assign(box(0.68, 0.24, 0.9, stdMat(color, 0, 0, 0.3, 0.7)), { position: new THREE.Vector3(0, 0.49, -0.05) }));
+  const carBody = box(0.85, 0.3, 1.7, stdMat(color, 0, 0, 0.3, 0.7)); carBody.position.set(0, 0.22, 0); group.add(carBody);
+  const carCabin = box(0.68, 0.24, 0.9, stdMat(color, 0, 0, 0.3, 0.7)); carCabin.position.set(0, 0.49, -0.05); group.add(carCabin);
   [[-0.44, 0.14, 0.52], [0.44, 0.14, 0.52], [-0.44, 0.14, -0.52], [0.44, 0.14, -0.52]].forEach(([wx, wy, wz]) => {
     const w = cyl(0.13, 0.13, 0.1, 8, stdMat(0x111111, 0, 0, 1)); w.rotation.z = Math.PI / 2; w.position.set(wx, wy, wz); group.add(w);
   });
