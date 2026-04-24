@@ -24,7 +24,7 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
   const [error, setError] = React.useState<string | null>(null);
 
   const callGenerate = async (postToFeed: boolean) => {
-    const { data, error: fnError } = await supabase.functions.invoke('generate-meme', {
+    const { data, error: fnError } = await supabase.functions.invoke('generate-image', {
       body: { prompt: prompt.trim(), postToFeed },
     });
     if (fnError) throw new Error(fnError.message || 'Generation failed');
