@@ -184,57 +184,40 @@ export function StonerGenerator({ onBack }: { onBack: () => void }) {
             </div>
           </div>
 
-          {/* References */}
+          {/* Locked Character Reference */}
           <div className="lg:col-span-4 flex flex-col gap-4">
             <div className="flex flex-col h-full bg-[#0a0a0a] border border-white/10 rounded-sm p-6 relative">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-pixel text-[10px] text-white/40 tracking-widest">REFERENCES</h3>
-                <span className="text-[10px] font-pixel text-red-600/50">{referenceImages.length}/3</span>
+                <h3 className="font-pixel text-[10px] text-white/40 tracking-widest">CHARACTER LOCK</h3>
+                <span className="flex items-center gap-1 text-[9px] font-pixel text-emerald-500/80">
+                  <Lock className="w-3 h-3" /> LOCKED
+                </span>
               </div>
 
-              <div className="flex-1 grid grid-cols-1 gap-4">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleReferenceUpload}
-                  className="hidden"
-                  accept="image/*"
-                  multiple
-                />
+              <div className="flex-1 flex flex-col gap-4">
+                <div className="relative aspect-square w-full rounded-sm overflow-hidden border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                  <img
+                    src={referenceImg}
+                    alt="Locked Stoner character reference"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5 px-2 py-1 bg-black/70 backdrop-blur-md rounded-sm border border-emerald-500/30">
+                    <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <span className="text-[8px] font-pixel text-emerald-300 tracking-wider uppercase truncate">
+                      THE ONLY STONER
+                    </span>
+                  </div>
+                </div>
 
-                {referenceImages.length < 3 && (
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="aspect-video w-full border-2 border-dashed border-white/5 rounded-sm flex flex-col items-center justify-center gap-3 hover:border-red-600/40 hover:bg-red-600/5 transition-all group"
-                  >
-                    <Plus className="w-6 h-6 text-white/10 group-hover:text-red-600" />
-                    <span className="text-[8px] font-pixel text-white/20 group-hover:text-red-900">UPLOAD IMAGE</span>
-                  </button>
-                )}
-
-                <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                  {referenceImages.map((img, idx) => (
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      key={idx}
-                      className="relative aspect-video rounded-sm overflow-hidden border border-white/10 group"
-                    >
-                      <img src={img} className="w-full h-full object-cover" alt="reference" />
-                      <button
-                        onClick={() => removeReference(idx)}
-                        className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                      >
-                        <X className="w-3 h-3 text-white" />
-                      </button>
-                    </motion.div>
-                  ))}
+                <div className="text-[9px] font-pixel text-white/50 leading-relaxed uppercase tracking-wide">
+                  EVERY GENERATION USES THIS EXACT CHARACTER. YOU JUST DESCRIBE THE SCENE.
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-white/5">
-                <p className="text-[8px] font-pixel text-white/20 leading-relaxed uppercase">
-                  REFERENCES ARE A VIBE BOARD — INSPIRE YOUR PROMPT, BRO
+                <p className="text-[8px] font-pixel text-emerald-500/60 leading-relaxed uppercase">
+                  ✓ STYLE LOCKED · ✓ CHARACTER LOCKED · DESCRIBE THE VIBE
                 </p>
               </div>
             </div>
