@@ -89,12 +89,12 @@ export default function Index() {
         />
         {/* Subtle bottom fade into page */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to bottom, transparent, #0a0a0a)' }} />
-        {/* Title overlay top-right exactly like MAGA site */}
-        <div style={{ position: 'absolute', top: 0, right: 0, padding: 'clamp(12px, 3vw, 28px) clamp(16px, 4vw, 40px)', textAlign: 'right' }}>
-          <div className="f-display flicker" style={{ fontSize: 'clamp(2.2rem, 7vw, 6rem)', letterSpacing: '0.12em', lineHeight: 1, textShadow: '0 0 30px rgba(255,0,0,0.5), 2px 2px 0 rgba(0,0,0,0.8)' }}>
-            $·S·T·U·N·U·R
+        {/* Title overlay - centered bottom */}
+        <div style={{ position: 'absolute', bottom: '18%', left: 0, right: 0, textAlign: 'center' }}>
+          <div className="f-display flicker" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)', letterSpacing: '0.15em', lineHeight: 1, textShadow: '0 0 40px rgba(255,0,0,0.6), 2px 2px 0 rgba(0,0,0,0.9)' }}>
+            $STUNUR
           </div>
-          <div className="f-mono" style={{ fontSize: 'clamp(9px, 1.2vw, 13px)', letterSpacing: '0.4em', color: 'rgba(255,255,255,0.7)', marginTop: 6, textShadow: '1px 1px 0 rgba(0,0,0,0.9)' }}>
+          <div className="f-mono" style={{ fontSize: 'clamp(9px, 1.4vw, 14px)', letterSpacing: '0.5em', color: 'rgba(255,255,255,0.7)', marginTop: 8, textShadow: '1px 1px 0 rgba(0,0,0,0.9)' }}>
             THE CHARACTER THAT NEVER LEFT
           </div>
         </div>
