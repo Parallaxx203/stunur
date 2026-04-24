@@ -3,7 +3,7 @@ export function StunurFilm() {
     <div id="stunur-film" className="max-w-7xl mx-auto px-4 py-24">
       <div className="flex flex-col items-center mb-12">
         <h2 className="text-4xl md:text-6xl font-display font-black text-red-600 tracking-tighter italic uppercase mb-2">
-          STUNUR Film
+          STUNUR ANTHEM
         </h2>
         <p className="text-white/40 font-display font-bold uppercase tracking-[0.3em] text-xs text-center">
           Official Cinematic Drop · Press Play
