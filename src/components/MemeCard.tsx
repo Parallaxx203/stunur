@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Eye } from 'lucide-react';
+import { Heart, Eye, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/device-id';
 import { cn } from '@/lib/utils';
@@ -44,7 +44,17 @@ export function MemeCard({ meme }: { meme: Meme }) {
       setLiked(!!likedRes.data);
     });
 
-    return () => {
+    const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const pass = prompt('Enter admin password:');
+    if (pass !== 'stunur2026') return;
+    if (!confirm('Delete this image?')) return;
+    await supabase.from('memes').delete().eq('id', meme.id);
+    // Remove card from DOM
+    if (cardRef.current) cardRef.current.style.display = 'none';
+  };
+
+  return () => {
       mounted = false;
     };
   }, [meme.id]);
@@ -118,6 +128,15 @@ export function MemeCard({ meme }: { meme: Meme }) {
           loading="lazy"
         />
         <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px]" />
+
+        {/* Delete button */}
+        <button
+          onClick={handleDelete}
+          className="absolute top-3 left-3 flex items-center gap-1 px-2 py-2 rounded-full backdrop-blur-xl border border-white/10 bg-black/40 text-white/30 hover:text-red-500 hover:border-red-500/50 transition-all active:scale-90"
+          aria-label="Delete"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
 
         {/* Floating glass like button */}
         <button
