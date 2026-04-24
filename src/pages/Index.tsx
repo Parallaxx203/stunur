@@ -110,9 +110,9 @@ export default function Index() {
         {/* CA row - styled exactly like MAGA site */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 20px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2 }}>
           <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.15em' }}>CA:</span>
-          <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em' }}>COMING SOON</span>
+          <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em' }}>7996tNESBCX9LdXxN8HrWC75JQu2F2tnxBWwqFvRpump</span>
           <span style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: 14, lineHeight: 1 }} onClick={() => {}}>⧉</span>
-          <span className="f-mono" style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em', marginLeft: 4 }}>👁 LIVE</span>
+          <span className="f-mono" style={{ fontSize: 9, color: '#00ff88', letterSpacing: '0.2em', marginLeft: 4 }}>✓ NOW LIVE</span>
         </div>
       </div>
 
@@ -187,7 +187,7 @@ export default function Index() {
         </div>
         <div style={{ marginTop: 4, padding: '10px 16px', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
           <span className="f-mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em' }}>
-            CONTRACT ADDRESS · COMING SOON · FOLLOW{' '}
+            CA: 7996tNESBCX9LdXxN8HrWC75JQu2F2tnxBWwqFvRpump · FOLLOW{' '}
             <a href="https://x.com/stunurstudios" target="_blank" rel="noopener noreferrer" style={{ color: '#cc0000', textDecoration: 'none' }}>@STUNURSTUDIOS</a>
             {' '}FOR LAUNCH
           </span>
