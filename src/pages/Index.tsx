@@ -73,35 +73,46 @@ export default function Index() {
       <div className="scanline" />
 
       {/* ── HERO BANNER ── */}
-      <div className="relative w-full" style={{ height: 'clamp(180px, 35vw, 340px)', overflow: 'hidden' }}>
-        <img src={bannerImg} alt="STUNUR" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'contrast(1.1) saturate(0.85)' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #0a0a0a)' }} />
-        {/* Logo + title top right like the reference */}
-        <div style={{ position: 'absolute', top: 0, right: 0, left: 0, display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', padding: '24px 32px' }}>
-          <div style={{ textAlign: 'right' }}>
-            <div className="f-display flicker" style={{ fontSize: 'clamp(2.5rem, 7vw, 6rem)', letterSpacing: '0.15em', lineHeight: 1, textShadow: '0 0 40px rgba(255,0,0,0.4)' }}>
-              $·S·T·U·N·U·R
-            </div>
-            <div className="f-mono" style={{ fontSize: 11, letterSpacing: '0.35em', color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>
-              THE CHARACTER THAT NEVER LEFT
-            </div>
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden', background: '#000' }}>
+        {/* Full bleed cinematic banner - Image 1 */}
+        <img
+          src="/stunur-banner-wide.jpg"
+          alt="STUNUR"
+          style={{
+            width: '100%',
+            height: 'clamp(220px, 38vw, 420px)',
+            objectFit: 'cover',
+            objectPosition: 'center top',
+            display: 'block',
+            filter: 'contrast(1.05) saturate(0.9)',
+          }}
+        />
+        {/* Subtle bottom fade into page */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to bottom, transparent, #0a0a0a)' }} />
+        {/* Title overlay top-right exactly like MAGA site */}
+        <div style={{ position: 'absolute', top: 0, right: 0, padding: 'clamp(12px, 3vw, 28px) clamp(16px, 4vw, 40px)', textAlign: 'right' }}>
+          <div className="f-display flicker" style={{ fontSize: 'clamp(2.2rem, 7vw, 6rem)', letterSpacing: '0.12em', lineHeight: 1, textShadow: '0 0 30px rgba(255,0,0,0.5), 2px 2px 0 rgba(0,0,0,0.8)' }}>
+            $·S·T·U·N·U·R
+          </div>
+          <div className="f-mono" style={{ fontSize: 'clamp(9px, 1.2vw, 13px)', letterSpacing: '0.4em', color: 'rgba(255,255,255,0.7)', marginTop: 6, textShadow: '1px 1px 0 rgba(0,0,0,0.9)' }}>
+            THE CHARACTER THAT NEVER LEFT
           </div>
         </div>
       </div>
 
-      {/* ── CHARACTER ICON + CA ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '16px 16px 0', background: '#0a0a0a' }}>
-        {/* Character avatar */}
-        <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', border: '2px solid #cc0000', marginTop: -32, zIndex: 10, position: 'relative', background: '#0a0a0a' }}>
+      {/* ── CHARACTER ICON + CA ── exactly like MAGA site layout */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '0 16px 0', background: '#0a0a0a' }}>
+        {/* Character pixel avatar centered, overlapping banner bottom */}
+        <div style={{ width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', border: '2px solid #cc0000', marginTop: -36, zIndex: 10, position: 'relative', background: '#0a0a0a', boxShadow: '0 0 20px rgba(204,0,0,0.4)' }}>
           <img src={referenceImg} alt="STUNUR" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
 
-        {/* CA row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}>
-          <span className="f-mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.2em' }}>CA:</span>
-          <span className="f-mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>COMING SOON</span>
-          <span style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>⧉</span>
-          <span className="f-mono" style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em', marginLeft: 8 }}>LIVE</span>
+        {/* CA row - styled exactly like MAGA site */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 20px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2 }}>
+          <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.15em' }}>CA:</span>
+          <span className="f-mono" style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em' }}>COMING SOON</span>
+          <span style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.3)', fontSize: 14, lineHeight: 1 }} onClick={() => {}}>⧉</span>
+          <span className="f-mono" style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.2em', marginLeft: 4 }}>👁 LIVE</span>
         </div>
       </div>
 
