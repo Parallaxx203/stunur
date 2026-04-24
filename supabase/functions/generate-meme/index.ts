@@ -30,26 +30,30 @@ try {
 }
 
 const STYLE_LOCK = `
-CRITICAL INSTRUCTION: You are EDITING the attached reference image. The character in the reference image MUST appear in the output EXACTLY as shown — same face, same hair, same clothes, same style. DO NOT invent a new character. DO NOT make it photo-realistic. DO NOT change the art style.
+You are EDITING the attached reference image. This is an IMAGE EDIT task — keep the EXACT SAME CHARACTER from the reference (same face, same identity, same art style) and re-render him in a new scene/pose/outfit as described.
 
-THE CHARACTER (copy exactly from reference, NEVER deviate):
-- Stylized illustrated bust of a fatigued male figure ("Wojak" + Junji Ito blend)
-- Hair: SHOCKING DISHEVELED WHITE, spiky, erratic, frayed jagged points
+CHARACTER IDENTITY LOCK (must stay identical to reference — face, hair, eyes, skin, art style):
+- Stylized illustrated male figure ("Wojak" + Junji Ito blend) — NEVER photo-real, NEVER 3D, NEVER anime, NEVER cartoon
+- Hair: shocking disheveled WHITE, spiky, erratic, jagged frayed points
 - Skin: pale, sallow, heavy stippling and cross-hatched distress lines
-- Eyes: deeply BLOODSHOT, heavy bags, sunken sockets, dark empty pupils, thousand-yard stare
+- Eyes: deeply BLOODSHOT, heavy bags, sunken sockets, dark pupils, thousand-yard stare
 - Facial hair: scruffy dark five-o'clock shadow stubble
-- Expression: profoundly exhausted, somber, world-weary
-- Apparel base: BLACK textured blazer over a dark CRIMSON RED crew-neck t-shirt (may swap for scene-appropriate clothing while keeping body proportions and face IDENTICAL)
-- A LIT CIGARETTE in the corner of his mouth, glowing orange tip, thin wispy smoke trailing up
+- A LIT CIGARETTE may appear in the corner of his mouth (optional based on scene)
 
-ART STYLE (FIXED — never change):
-- Dark graphic novel ink illustration with intricate pen-and-ink line work
+WHAT CAN CHANGE (freely, to match the new scene):
+- POSE and BODY POSITION (standing, sitting, driving, running, leaning, full-body, action shots — anything)
+- FRAMING and CAMERA ANGLE (close-up, wide shot, side profile, from behind, etc.)
+- CLOTHING and OUTFIT (whatever fits the scene — suit, hoodie, racing gear, swim trunks, armor, etc.)
+- FACIAL EXPRESSION (subtle variation OK — smug, shocked, smirking — but keep the same exhausted underground vibe)
+- BACKGROUND, SETTING, LIGHTING, PROPS, VEHICLES, OTHER CHARACTERS
+
+ART STYLE (must stay locked):
+- Dark graphic novel ink illustration, intricate pen-and-ink line work
 - Heavy stippling, dot-work, cross-hatching, gritty texture
-- Muted somber palette: black, dark crimson, off-white, grey, sallow skin
-- High contrast, melancholic, depleted, underground mood
-- NEVER photo-realistic, NEVER 3D render, NEVER anime, NEVER cartoon
+- Muted palette: black, dark crimson, off-white, grey, sallow skin tones
+- High contrast, melancholic, underground mood
 
-YOUR TASK: Place this EXACT character (from the reference image) into the new scene described below. Only the SCENE, BACKGROUND, and SECONDARY ELEMENTS change. The character's face, hair, eyes, expression, and overall illustrated style remain IDENTICAL to the reference.
+Treat this as an EDIT of the reference image: same guy, new scene.
 `.trim();
 
 Deno.serve(async (req) => {
